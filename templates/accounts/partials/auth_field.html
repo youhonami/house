@@ -1,0 +1,8 @@
+<div class="auth-field">
+  {{ field.label_tag }}{{ field }}
+  {% if field.errors %}
+  <ul class="field-errors">
+    {% for err in field.errors %}<li>{{ err }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</div>
