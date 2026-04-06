@@ -1,7 +1,10 @@
+import re
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 _LOGIN_ERR = 'メールアドレスまたはパスワードが正しくありません。'
 _W = {'class': 'auth-input'}
@@ -48,6 +51,8 @@ class EmailLoginForm(forms.Form):
 
 
 class RegisterForm(UserCreationForm):
+    _PASSWORD_EN = re.compile(r'^[a-zA-Z]{5,}\Z')
+
     class Meta:
         model = User
         fields = ('username', 'password1', 'password2')
@@ -60,14 +65,29 @@ class RegisterForm(UserCreationForm):
             attrs={**_W, 'placeholder': '名前を入力', 'autocomplete': 'email'}
         )
         self.fields['password1'].label = 'パスワード'
+        self.fields['password1'].help_text = '英字（a〜z, A〜Z）のみ、5文字以上'
+        self.fields['password1'].validators = []
         self.fields['password2'].label = 'パスワード（確認）'
+        self.fields['password2'].help_text = ''
         for name, ph in (
-            ('password1', '8文字以上'),
+            ('password1', '英字5文字以上'),
             ('password2', '確認のため再入力'),
         ):
             self.fields[name].widget.attrs.update(
                 {**_W, 'placeholder': ph, 'autocomplete': 'new-password'}
             )
+
+    def validate_password_for_user(self, user, password_field_name='password2'):
+        pw = self.cleaned_data.get(password_field_name)
+        if not pw or self._PASSWORD_EN.match(pw):
+            return
+        self.add_error(
+            password_field_name,
+            ValidationError(
+                'パスワードは英字（a〜z, A〜Z）のみ、5文字以上で入力してください。',
+                code='password_english_min5',
+            ),
+        )
 
     def save(self, commit=True):
         user = super().save(commit=False)

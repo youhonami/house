@@ -151,6 +151,17 @@
   font-size: 0.95rem;
 }
 
+.top-placeholder {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.top-user {
+  margin-bottom: 1.25rem !important;
+  font-size: 0.85rem;
+  color: #888;
+}
+
 .auth-card--home form {
   margin: 0;
 }

@@ -11,8 +11,8 @@ def _home():
 
 
 @login_required
-def home(request):
-    return render(request, 'accounts/home.html')
+def top(request):
+    return render(request, 'accounts/top.html')
 
 
 def login_view(request):
