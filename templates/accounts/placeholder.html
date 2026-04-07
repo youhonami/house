@@ -1,0 +1,9 @@
+{% extends "accounts/base_app.html" %}
+{% block title %}{{ title_suffix }} — 家計簿{% endblock %}
+{% block app_body %}
+<div class="auth-card">
+  <h1 class="auth-brand">{{ heading }}</h1>
+  <p class="auth-title">{{ note }}</p>
+  <p class="auth-footer"><a href="{% url 'accounts:top' %}">トップに戻る</a></p>
+</div>
+{% endblock %}

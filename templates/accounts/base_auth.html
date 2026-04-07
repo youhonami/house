@@ -13,7 +13,7 @@
     />
     <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}" />
   </head>
-  <body class="auth-page">
+  <body class="{% block body_class %}auth-page{% endblock %}">
     {% block body %}{% endblock %}
   </body>
 </html>

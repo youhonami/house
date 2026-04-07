@@ -1,0 +1,9 @@
+{% extends "accounts/base_auth.html" %}
+{% load navigation_tags %}
+{% block body_class %}auth-page auth-page--app-shell{% endblock %}
+{% block body %}
+<div class="app-shell">
+  {% render_sidebar %}
+  <div class="app-shell__body {% block app_shell_body_class %}{% endblock %}">{% block app_body %}{% endblock %}</div>
+</div>
+{% endblock %}

@@ -15,6 +15,64 @@ def top(request):
     return render(request, 'accounts/top.html')
 
 
+def _stub_ctx(title_suffix: str, heading: str, note: str):
+    return {'title_suffix': title_suffix, 'heading': heading, 'note': note}
+
+
+@login_required
+def income(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('収入入力', '収入入力', 'ここに収入入力の内容を追加予定です。'),
+    )
+
+
+@login_required
+def expense(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('支出入力', '支出入力', 'ここに支出入力の内容を追加予定です。'),
+    )
+
+
+@login_required
+def daily_summary(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('日別集計', '日別集計', 'ここに日別集計の内容を追加予定です。'),
+    )
+
+
+@login_required
+def monthly_summary(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('月度集計', '月度集計', 'ここに月度集計の内容を追加予定です。'),
+    )
+
+
+@login_required
+def goal_settings(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('目標設定', '目標設定', 'ここに目標設定の内容を追加予定です。'),
+    )
+
+
+@login_required
+def settings_page(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('設定', '設定', 'ここに設定画面の内容を追加予定です。'),
+    )
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return _home()

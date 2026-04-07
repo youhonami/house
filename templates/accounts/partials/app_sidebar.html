@@ -1,0 +1,25 @@
+<aside class="app-sidebar" aria-label="メインメニュー">
+  <a
+    href="{% url sidebar_brand.url_name %}"
+    class="app-sidebar__brand{% if n == sidebar_brand.match %} is-active{% endif %}"
+    >{{ sidebar_brand.label }}</a
+  >
+  <nav class="app-sidebar__nav">
+    {% for item in sidebar_nav_items %}
+      {% if item.kind == 'link' %}
+        <a
+          href="{% url item.url_name %}"
+          class="app-sidebar__link{% if n == item.match %} is-active{% endif %}"
+          >{{ item.label }}</a
+        >
+      {% elif item.kind == 'logout' %}
+        <form method="post" action="{% url 'accounts:logout' %}" class="app-sidebar__form">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__link app-sidebar__link--logout">
+            {{ item.label }}
+          </button>
+        </form>
+      {% endif %}
+    {% endfor %}
+  </nav>
+</aside>

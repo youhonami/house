@@ -174,3 +174,179 @@
   box-shadow: none;
   font-size: 0.9rem;
 }
+
+/* アプリシェル（サイドバー + メイン） */
+body.auth-page.auth-page--app-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: row;
+  flex: 1 0 auto;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-sidebar {
+  flex: 0 0 220px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0;
+  background: rgba(255, 255, 255, 0.97);
+  border-right: 1px solid rgba(200, 190, 220, 0.45);
+  box-shadow: 4px 0 18px rgba(88, 74, 120, 0.06);
+}
+
+.app-sidebar__brand {
+  display: block;
+  margin: 0 1rem 1rem;
+  padding-bottom: 1rem;
+  text-align: center;
+  font-family: 'DM Serif Display', 'Shippori Mincho', 'Hiragino Mincho ProN',
+    serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  color: #a896d8;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid #eee;
+}
+
+.app-sidebar__brand:hover {
+  color: #8a75c4;
+}
+
+.app-sidebar__brand.is-active {
+  font-weight: 600;
+  color: #5c4d7a;
+}
+
+.app-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0 0.5rem;
+}
+
+.app-sidebar__link {
+  display: block;
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.app-sidebar__link:hover {
+  background: rgba(168, 150, 216, 0.12);
+  color: #5c4d7a;
+}
+
+.app-sidebar__link.is-active {
+  background: rgba(168, 150, 216, 0.2);
+  border-left-color: #a896d8;
+  color: #5c4d7a;
+  font-weight: 600;
+}
+
+.app-sidebar__form {
+  margin: 0;
+  padding: 0;
+}
+
+.app-sidebar__link--logout {
+  margin-top: 0.35rem;
+  color: #666;
+}
+
+.app-sidebar__link--logout:hover {
+  background: rgba(232, 160, 200, 0.15);
+  color: #8b4a62;
+}
+
+.app-shell__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.app-shell__body--center {
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border-right: none;
+    border-bottom: 1px solid rgba(200, 190, 220, 0.45);
+    box-shadow: 0 4px 14px rgba(88, 74, 120, 0.06);
+  }
+
+  .app-sidebar__brand {
+    margin: 0 0.5rem 0 0;
+    padding: 0 0.75rem 0 0;
+    border-bottom: none;
+    border-right: 1px solid #eee;
+    flex: 0 0 auto;
+  }
+
+  .app-sidebar__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex: 1 1 auto;
+  }
+
+  .app-sidebar__link {
+    width: auto;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .app-sidebar__link.is-active {
+    border-left: none;
+    border-bottom-color: #a896d8;
+  }
+
+  .app-sidebar__form {
+    width: auto;
+  }
+
+  .app-sidebar__link--logout {
+    margin-top: 0;
+  }
+}
