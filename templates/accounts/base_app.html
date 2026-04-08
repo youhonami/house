@@ -1,9 +1,37 @@
 {% extends "accounts/base_auth.html" %}
-{% load navigation_tags %}
+{% load static navigation_tags %}
 {% block body_class %}auth-page auth-page--app-shell{% endblock %}
 {% block body %}
-<div class="app-shell">
-  {% render_sidebar %}
-  <div class="app-shell__body {% block app_shell_body_class %}{% endblock %}">{% block app_body %}{% endblock %}</div>
+<div class="app-shell" data-app-shell>
+  <div class="app-shell__topbar">
+    <button
+      type="button"
+      id="app-nav-toggle"
+      class="app-nav-toggle"
+      aria-controls="app-sidebar-drawer"
+      aria-expanded="false"
+      aria-label="メニューを開く"
+    >
+      <span class="app-nav-toggle__bar" aria-hidden="true"></span>
+      <span class="app-nav-toggle__bar" aria-hidden="true"></span>
+      <span class="app-nav-toggle__bar" aria-hidden="true"></span>
+    </button>
+    <span class="app-shell__topbar-title">家計簿</span>
+  </div>
+  <button
+    type="button"
+    class="app-shell__backdrop"
+    id="app-shell-backdrop"
+    tabindex="-1"
+    aria-hidden="true"
+    hidden
+  ></button>
+  <div class="app-shell__drawer" id="app-sidebar-drawer">{% render_sidebar %}</div>
+  <div class="app-shell__body {% block app_shell_body_class %}{% endblock %}">
+    {% block app_body %}{% endblock %}
+  </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'accounts/js/app-nav.js' %}" defer></script>
 {% endblock %}

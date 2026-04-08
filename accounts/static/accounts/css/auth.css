@@ -196,9 +196,90 @@ body.auth-page.auth-page--app-shell {
   min-height: 100dvh;
 }
 
-.app-sidebar {
+.app-shell__topbar {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  padding: 0.65rem 1rem;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid rgba(200, 190, 220, 0.45);
+  box-shadow: 0 2px 12px rgba(88, 74, 120, 0.06);
+}
+
+.app-shell__topbar-title {
+  font-family: 'DM Serif Display', 'Shippori Mincho', 'Hiragino Mincho ProN',
+    serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: #a896d8;
+}
+
+.app-nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.5rem;
+  margin: 0;
+  border: none;
+  border-radius: 10px;
+  background: rgba(168, 150, 216, 0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.app-nav-toggle:hover {
+  background: rgba(168, 150, 216, 0.22);
+}
+
+.app-nav-toggle:focus-visible {
+  outline: 2px solid #9586c9;
+  outline-offset: 2px;
+}
+
+.app-nav-toggle__bar {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #5c4d7a;
+  border-radius: 1px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+  transform-origin: center;
+}
+
+.app-shell--drawer-open .app-nav-toggle__bar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.app-shell--drawer-open .app-nav-toggle__bar:nth-child(2) {
+  opacity: 0;
+}
+
+.app-shell--drawer-open .app-nav-toggle__bar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+.app-shell__backdrop {
+  display: none;
+}
+
+.app-shell__drawer {
   flex: 0 0 220px;
   width: 220px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
+
+.app-sidebar {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
   padding: 1.25rem 0;
@@ -298,55 +379,105 @@ body.auth-page.auth-page--app-shell {
   justify-content: center;
 }
 
+body.app-shell-lock-scroll {
+  overflow: hidden;
+}
+
 @media (max-width: 720px) {
   .app-shell {
     flex-direction: column;
   }
 
-  .app-sidebar {
-    flex: 0 0 auto;
+  .app-shell__topbar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .app-nav-toggle {
+    display: flex;
+  }
+
+  .app-shell__backdrop[hidden] {
+    display: none !important;
+  }
+
+  .app-shell__backdrop:not([hidden]) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    margin: 0;
+    padding: 0;
     width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem;
+    height: 100%;
+    border: none;
+    background: rgba(42, 36, 56, 0.38);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app-shell__drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(288px, 88vw);
+    max-width: 320px;
+    z-index: 200;
+    flex: none;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(4px 0 20px rgba(42, 36, 56, 0.18));
+  }
+
+  .app-shell--drawer-open .app-shell__drawer {
+    transform: translateX(0);
+  }
+
+  .app-sidebar {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: 1.25rem 0;
     border-right: none;
-    border-bottom: 1px solid rgba(200, 190, 220, 0.45);
-    box-shadow: 0 4px 14px rgba(88, 74, 120, 0.06);
+    box-shadow: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .app-sidebar__brand {
-    margin: 0 0.5rem 0 0;
-    padding: 0 0.75rem 0 0;
-    border-bottom: none;
-    border-right: 1px solid #eee;
-    flex: 0 0 auto;
+    margin: 0 1rem 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    border-right: none;
+    text-align: center;
   }
 
   .app-sidebar__nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    flex: 1 1 auto;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
   }
 
   .app-sidebar__link {
-    width: auto;
-    border-left: none;
-    border-bottom: 3px solid transparent;
+    width: 100%;
+    border-left: 3px solid transparent;
   }
 
   .app-sidebar__link.is-active {
-    border-left: none;
-    border-bottom-color: #a896d8;
+    border-left-color: #a896d8;
   }
 
   .app-sidebar__form {
-    width: auto;
+    width: 100%;
   }
 
   .app-sidebar__link--logout {
-    margin-top: 0;
+    margin-top: 0.35rem;
   }
 }
