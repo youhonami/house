@@ -2,8 +2,12 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
 
-from .forms import EmailLoginForm, RegisterForm
+from .forms import EmailLoginForm, IncomeEntryForm, RegisterForm
+from .models import IncomeEntry
 
 
 def _home():
@@ -19,12 +23,34 @@ def _stub_ctx(title_suffix: str, heading: str, note: str):
     return {'title_suffix': title_suffix, 'heading': heading, 'note': note}
 
 
+def _income_monthly_totals(user):
+    return (
+        IncomeEntry.objects.filter(user=user)
+        .annotate(month=TruncMonth('date'))
+        .values('month')
+        .annotate(total=Sum('amount'))
+        .order_by('-month')
+    )
+
+
 @login_required
 def income(request):
+    if request.method == 'POST':
+        form = IncomeEntryForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
+            return redirect('accounts:income')
+    else:
+        form = IncomeEntryForm(initial={'date': timezone.localdate()})
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('収入入力', '収入入力', 'ここに収入入力の内容を追加予定です。'),
+        'accounts/income.html',
+        {
+            'form': form,
+            'monthly_totals': _income_monthly_totals(request.user),
+        },
     )
 
 

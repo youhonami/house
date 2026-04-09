@@ -1,0 +1,81 @@
+{% extends "accounts/base_app.html" %}
+{% load humanize %}
+{% block title %}収入入力 — 家計簿{% endblock %}
+{% block app_body %}
+<div class="page-income">
+  <section class="income-panel income-panel--form">
+    <h1 class="income-heading">収入入力</h1>
+    <form method="post" class="income-form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <ul class="auth-errors">
+        {% for err in form.non_field_errors %}
+        <li>{{ err }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      <div class="income-form__row">
+        <div class="income-form__field">
+          {{ form.date.label_tag }}{{ form.date }}
+          {% if form.date.errors %}
+          <ul class="field-errors">
+            {% for err in form.date.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <div class="income-form__field">
+          {{ form.amount.label_tag }}{{ form.amount }}
+          {% if form.amount.errors %}
+          <ul class="field-errors">
+            {% for err in form.amount.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+      <div class="income-form__field income-form__field--full">
+        {{ form.note.label_tag }}{{ form.note }}
+        {% if form.note.errors %}
+        <ul class="field-errors">
+          {% for err in form.note.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <button type="submit" class="auth-submit income-form__submit">
+        登録する
+      </button>
+    </form>
+  </section>
+
+  <section class="income-panel income-panel--summary">
+    <h2 class="income-subheading">月別トータル</h2>
+    {% if monthly_totals %}
+    <div class="income-table-wrap">
+      <table class="income-summary-table">
+        <thead>
+          <tr>
+            <th>月</th>
+            <th class="income-summary-table__num">合計（円）</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in monthly_totals %}
+          <tr>
+            <td>{{ row.month|date:"Y年n月" }}</td>
+            <td class="income-summary-table__num">{{ row.total|intcomma }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="income-empty">まだ登録された収入がありません。</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

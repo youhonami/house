@@ -8,7 +8,11 @@
   padding: 1.5rem;
   box-sizing: border-box;
   background: linear-gradient(90deg, #d1d8fb 0%, #f7b7d5 100%);
-  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  font-family:
+    "Noto Sans JP",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
     sans-serif;
 }
 
@@ -25,8 +29,8 @@
 .auth-brand {
   margin: 0 0 0.35rem;
   text-align: center;
-  font-family: 'DM Serif Display', 'Shippori Mincho', 'Hiragino Mincho ProN',
-    serif;
+  font-family:
+    "DM Serif Display", "Shippori Mincho", "Hiragino Mincho ProN", serif;
   font-size: 2rem;
   font-weight: 400;
   color: #a896d8;
@@ -112,7 +116,9 @@
   cursor: pointer;
   background: linear-gradient(90deg, #c4b8ea 0%, #ea9ec8 100%);
   box-shadow: 0 4px 14px rgba(168, 120, 180, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .auth-submit:hover {
@@ -208,8 +214,8 @@ body.auth-page.auth-page--app-shell {
 }
 
 .app-shell__topbar-title {
-  font-family: 'DM Serif Display', 'Shippori Mincho', 'Hiragino Mincho ProN',
-    serif;
+  font-family:
+    "DM Serif Display", "Shippori Mincho", "Hiragino Mincho ProN", serif;
   font-size: 1.35rem;
   font-weight: 400;
   color: #a896d8;
@@ -247,7 +253,9 @@ body.auth-page.auth-page--app-shell {
   width: 100%;
   background: #5c4d7a;
   border-radius: 1px;
-  transition: transform 0.25s ease, opacity 0.2s ease;
+  transition:
+    transform 0.25s ease,
+    opacity 0.2s ease;
   transform-origin: center;
 }
 
@@ -293,8 +301,8 @@ body.auth-page.auth-page--app-shell {
   margin: 0 1rem 1rem;
   padding-bottom: 1rem;
   text-align: center;
-  font-family: 'DM Serif Display', 'Shippori Mincho', 'Hiragino Mincho ProN',
-    serif;
+  font-family:
+    "DM Serif Display", "Shippori Mincho", "Hiragino Mincho ProN", serif;
   font-size: 1.45rem;
   font-weight: 400;
   color: #a896d8;
@@ -335,7 +343,10 @@ body.auth-page.auth-page--app-shell {
   width: 100%;
   cursor: pointer;
   box-sizing: border-box;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .app-sidebar__link:hover {
@@ -480,4 +491,118 @@ body.app-shell-lock-scroll {
   .app-sidebar__link--logout {
     margin-top: 0.35rem;
   }
+}
+
+/* 収入入力ページ */
+.page-income {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.income-panel {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(88, 74, 120, 0.12);
+  padding: 1.5rem 1.5rem 1.75rem;
+  box-sizing: border-box;
+}
+
+.income-heading {
+  margin: 0 0 1.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #3d3d3d;
+}
+
+.income-subheading {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5c4d7a;
+}
+
+.income-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.income-form__field {
+  flex: 1 1 140px;
+}
+
+.income-form__field--full {
+  flex: 1 1 100%;
+  margin-bottom: 1rem;
+}
+
+.income-form__field label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #3d3d3d;
+}
+
+.income-form__submit {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 0.25rem;
+}
+
+/* 金額（number）の増減スピナーを出さない */
+.income-form input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.income-form input[type='number']::-webkit-outer-spin-button,
+.income-form input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.income-table-wrap {
+  overflow-x: auto;
+}
+
+.income-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.income-summary-table th,
+.income-summary-table td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.income-summary-table thead th {
+  color: #666;
+  font-weight: 600;
+  background: #faf9fd;
+}
+
+.income-summary-table tbody tr:hover {
+  background: #f9f7fc;
+}
+
+.income-summary-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #2e7d52;
+}
+
+.income-empty {
+  margin: 0;
+  color: #888;
+  font-size: 0.9rem;
 }
