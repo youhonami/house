@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .models import IncomeEntry
+from .models import ExpenseEntry, IncomeEntry
 
 _LOGIN_ERR = 'メールアドレスまたはパスワードが正しくありません。'
 _W = {'class': 'auth-input'}
@@ -106,6 +106,32 @@ _INC_W = {'class': 'auth-input'}
 class IncomeEntryForm(forms.ModelForm):
     class Meta:
         model = IncomeEntry
+        fields = ('date', 'amount', 'note')
+        labels = {
+            'date': '日付',
+            'amount': '金額',
+            'note': '内容',
+        }
+        widgets = {
+            'date': forms.DateInput(
+                attrs={**_INC_W, 'type': 'date', 'autocomplete': 'off'}
+            ),
+            'amount': forms.NumberInput(
+                attrs={**_INC_W, 'min': 1, 'step': 1, 'inputmode': 'numeric'}
+            ),
+            'note': forms.TextInput(attrs={**_INC_W, 'placeholder': 'メモ'}),
+        }
+
+    def clean_amount(self):
+        amount = self.cleaned_data['amount']
+        if amount is not None and amount <= 0:
+            raise forms.ValidationError('金額は1円以上で入力してください。')
+        return amount
+
+
+class ExpenseEntryForm(forms.ModelForm):
+    class Meta:
+        model = ExpenseEntry
         fields = ('date', 'amount', 'note')
         labels = {
             'date': '日付',

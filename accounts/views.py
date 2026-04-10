@@ -6,8 +6,8 @@ from django.utils import timezone
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 
-from .forms import EmailLoginForm, IncomeEntryForm, RegisterForm
-from .models import IncomeEntry
+from .forms import EmailLoginForm, ExpenseEntryForm, IncomeEntryForm, RegisterForm
+from .models import ExpenseEntry, IncomeEntry
 
 
 def _home():
@@ -26,6 +26,16 @@ def _stub_ctx(title_suffix: str, heading: str, note: str):
 def _income_monthly_totals(user):
     return (
         IncomeEntry.objects.filter(user=user)
+        .annotate(month=TruncMonth('date'))
+        .values('month')
+        .annotate(total=Sum('amount'))
+        .order_by('-month')
+    )
+
+
+def _expense_monthly_totals(user):
+    return (
+        ExpenseEntry.objects.filter(user=user)
         .annotate(month=TruncMonth('date'))
         .values('month')
         .annotate(total=Sum('amount'))
@@ -56,10 +66,22 @@ def income(request):
 
 @login_required
 def expense(request):
+    if request.method == 'POST':
+        form = ExpenseEntryForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
+            return redirect('accounts:expense')
+    else:
+        form = ExpenseEntryForm(initial={'date': timezone.localdate()})
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('支出入力', '支出入力', 'ここに支出入力の内容を追加予定です。'),
+        'accounts/expense.html',
+        {
+            'form': form,
+            'monthly_totals': _expense_monthly_totals(request.user),
+        },
     )
 
 
