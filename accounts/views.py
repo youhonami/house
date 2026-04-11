@@ -1,3 +1,6 @@
+from datetime import date
+from decimal import Decimal
+
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -40,6 +43,75 @@ def _expense_monthly_totals(user):
         .values('month')
         .annotate(total=Sum('amount'))
         .order_by('-month')
+    )
+
+
+def _summary_target_month(request):
+    """クエリ ym=YYYY-MM または year/month から集計対象月（その月1日）を返す。未来月は今月に丸める。"""
+    today = timezone.localdate()
+    current_first = date(today.year, today.month, 1)
+    ym = request.GET.get('ym')
+    if ym:
+        try:
+            y_str, m_str = ym.split('-', 1)
+            y, m = int(y_str), int(m_str)
+            if 1 <= m <= 12 and 2000 <= y <= 2100:
+                target = date(y, m, 1)
+                if target > current_first:
+                    target = current_first
+                return target
+        except (TypeError, ValueError):
+            pass
+    try:
+        y = int(request.GET.get('year', today.year))
+        m = int(request.GET.get('month', today.month))
+        if not (1 <= m <= 12 and 2000 <= y <= 2100):
+            raise ValueError
+        target = date(y, m, 1)
+    except (TypeError, ValueError):
+        target = current_first
+    if target > current_first:
+        target = current_first
+    return target
+
+
+def _add_months(first: date, delta: int) -> date:
+    y, m = first.year, first.month + delta
+    while m > 12:
+        m -= 12
+        y += 1
+    while m < 1:
+        m += 12
+        y -= 1
+    return date(y, m, 1)
+
+
+def _monthly_income_expense_balance(user, year: int, month: int):
+    income_total = (
+        IncomeEntry.objects.filter(user=user, date__year=year, date__month=month).aggregate(
+            s=Sum('amount')
+        )['s']
+        or Decimal('0')
+    )
+    expense_total = (
+        ExpenseEntry.objects.filter(user=user, date__year=year, date__month=month).aggregate(
+            s=Sum('amount')
+        )['s']
+        or Decimal('0')
+    )
+    balance = income_total - expense_total
+    return income_total, expense_total, balance
+
+
+def _monthly_income_entries(user, year: int, month: int):
+    return IncomeEntry.objects.filter(
+        user=user, date__year=year, date__month=month
+    )
+
+
+def _monthly_expense_entries(user, year: int, month: int):
+    return ExpenseEntry.objects.filter(
+        user=user, date__year=year, date__month=month
     )
 
 
@@ -96,10 +168,35 @@ def daily_summary(request):
 
 @login_required
 def monthly_summary(request):
+    target = _summary_target_month(request)
+    y, m = target.year, target.month
+    income_total, expense_total, balance = _monthly_income_expense_balance(
+        request.user, y, m
+    )
+    today = timezone.localdate()
+    current_first = date(today.year, today.month, 1)
+    prev_m = _add_months(target, -1)
+    next_m = _add_months(target, 1)
+    can_go_next = next_m <= current_first
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('月度集計', '月度集計', 'ここに月度集計の内容を追加予定です。'),
+        'accounts/monthly_summary.html',
+        {
+            'summary_year': y,
+            'summary_month': m,
+            'period_label': f'{y}年{m}月',
+            'month_input_value': f'{y:04d}-{m:02d}',
+            'income_total': income_total,
+            'expense_total': expense_total,
+            'balance': balance,
+            'prev_year': prev_m.year,
+            'prev_month': prev_m.month,
+            'next_year': next_m.year,
+            'next_month': next_m.month,
+            'can_go_next': can_go_next,
+            'income_entries': _monthly_income_entries(request.user, y, m),
+            'expense_entries': _monthly_expense_entries(request.user, y, m),
+        },
     )
 
 

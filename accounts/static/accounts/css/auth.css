@@ -394,6 +394,43 @@ body.app-shell-lock-scroll {
   overflow: hidden;
 }
 
+/* Desktop: sidebar stays in view; only main column scrolls */
+@media (min-width: 721px) {
+  html:has(body.auth-page--app-shell) {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body.auth-page.auth-page--app-shell {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .app-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .app-shell__drawer {
+    align-self: stretch;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .app-shell__body {
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 @media (max-width: 720px) {
   .app-shell {
     flex-direction: column;
@@ -595,6 +632,45 @@ body.app-shell-lock-scroll {
   background: #f9f7fc;
 }
 
+.income-summary-table tbody tr:has(.income-summary-table__link-cell):hover {
+  background: transparent;
+}
+
+.income-summary-table__link-cell {
+  padding: 0;
+  vertical-align: middle;
+}
+
+.income-summary-table__row-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.75rem;
+  text-decoration: none;
+  color: #3d3d3d;
+  border-radius: 8px;
+  outline-offset: 2px;
+}
+
+.income-summary-table__row-link:hover {
+  background: #f3f0fa;
+}
+
+.income-summary-table__row-link:focus-visible {
+  outline: 2px solid #a896d8;
+}
+
+.income-summary-table__link-month {
+  font-weight: 500;
+}
+
+.income-summary-table__link-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #2e7d52;
+}
+
 .income-summary-table__num {
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -610,4 +686,234 @@ body.app-shell-lock-scroll {
   margin: 0;
   color: #888;
   font-size: 0.9rem;
+}
+
+/* 月度集計 */
+.page-monthly-summary {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.monthly-summary-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.monthly-summary-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid #ece8f4;
+  border-bottom: 1px solid #ece8f4;
+}
+
+.monthly-summary-nav__current {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3d3d3d;
+  letter-spacing: 0.02em;
+}
+
+.monthly-summary-nav__link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b5b95;
+  text-decoration: none;
+}
+
+.monthly-summary-nav__link:hover {
+  text-decoration: underline;
+}
+
+.monthly-summary-nav__next.is-disabled {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #bbb;
+  cursor: default;
+}
+
+.monthly-summary-jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.65rem 0.75rem;
+}
+
+.monthly-summary-jump__label {
+  flex: 1 1 100%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #666;
+}
+
+.monthly-summary-jump__input {
+  flex: 1 1 160px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.monthly-summary-jump__btn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 5rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  margin: 0;
+}
+
+.monthly-summary-stats {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.monthly-summary-stats__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.monthly-summary-stats__row:first-of-type {
+  padding-top: 0.25rem;
+}
+
+.monthly-summary-stats__row--balance {
+  margin-top: 0.35rem;
+  padding-top: 1rem;
+  border-bottom: none;
+  border-top: 2px solid #ece8f4;
+}
+
+.monthly-summary-stats__label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.monthly-summary-stats__value {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.monthly-summary-stats__value--income {
+  color: #1e6b40;
+}
+
+.monthly-summary-stats__value--expense {
+  color: #b71c1c;
+}
+
+.monthly-summary-stats__value--balance {
+  font-size: 1.2rem;
+}
+
+.monthly-summary-stats__value--plus {
+  color: #1565c0;
+}
+
+.monthly-summary-stats__value--minus {
+  color: #c62828;
+}
+
+.monthly-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Monthly summary: anchor scroll offset (mobile: sticky topbar) */
+#monthly-income-detail {
+  scroll-margin-top: 1rem;
+}
+
+@media (max-width: 720px) {
+  #monthly-income-detail {
+    scroll-margin-top: 4.75rem;
+  }
+}
+
+.monthly-summary-detail__heading {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #5c4d7a;
+  letter-spacing: 0.02em;
+}
+
+.monthly-summary-detail__empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #888;
+}
+
+.monthly-detail-table-wrap {
+  overflow-x: auto;
+  margin: 0 -0.25rem;
+  padding: 0 0.25rem;
+}
+
+.monthly-detail-table {
+  width: 100%;
+  min-width: 280px;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.monthly-detail-table th,
+.monthly-detail-table td {
+  padding: 0.55rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.monthly-detail-table thead th {
+  color: #666;
+  font-weight: 600;
+  background: #faf9fd;
+  white-space: nowrap;
+}
+
+.monthly-detail-table__amount-head {
+  text-align: right;
+}
+
+.monthly-detail-table tbody tr:hover {
+  background: #f9f7fc;
+}
+
+.monthly-detail-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.monthly-detail-table__num--income {
+  color: #1e6b40;
+}
+
+.monthly-detail-table__num--expense {
+  color: #b71c1c;
+}
+
+.monthly-detail-table__note {
+  color: #444;
+  word-break: break-word;
 }

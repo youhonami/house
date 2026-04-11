@@ -1,0 +1,138 @@
+{% extends "accounts/base_app.html" %}
+{% load humanize %}
+{% block title %}月度集計 — 家計簿{% endblock %}
+{% block app_body %}
+<div class="page-monthly-summary">
+  <section class="income-panel monthly-summary-panel">
+    <h1 class="income-heading">月度集計</h1>
+
+    <div class="monthly-summary-nav" aria-label="表示月の切り替え">
+      <a
+        class="monthly-summary-nav__link"
+        href="{% url 'accounts:monthly_summary' %}?year={{ prev_year }}&month={{ prev_month }}"
+      >
+        ← 前月
+      </a>
+      <span class="monthly-summary-nav__current">{{ period_label }}</span>
+      {% if can_go_next %}
+      <a
+        class="monthly-summary-nav__link"
+        href="{% url 'accounts:monthly_summary' %}?year={{ next_year }}&month={{ next_month }}"
+      >
+        次月 →
+      </a>
+      {% else %}
+      <span class="monthly-summary-nav__next is-disabled" aria-disabled="true">次月 →</span>
+      {% endif %}
+    </div>
+
+    <form method="get" class="monthly-summary-jump">
+      <label for="jump-month" class="monthly-summary-jump__label">月を指定</label>
+      <input
+        type="month"
+        id="jump-month"
+        name="ym"
+        class="monthly-summary-jump__input auth-input"
+        value="{{ month_input_value }}"
+        max="{% now 'Y-m' %}"
+        min="2000-01"
+      />
+      <button type="submit" class="auth-submit monthly-summary-jump__btn">表示</button>
+    </form>
+
+    <dl class="monthly-summary-stats">
+      <div class="monthly-summary-stats__row">
+        <dt class="monthly-summary-stats__label">収入合計</dt>
+        <dd class="monthly-summary-stats__value monthly-summary-stats__value--income">
+          {{ income_total|intcomma }}
+        </dd>
+      </div>
+      <div class="monthly-summary-stats__row">
+        <dt class="monthly-summary-stats__label">支出合計</dt>
+        <dd class="monthly-summary-stats__value monthly-summary-stats__value--expense">
+          {{ expense_total|intcomma }}
+        </dd>
+      </div>
+      <div class="monthly-summary-stats__row monthly-summary-stats__row--balance">
+        <dt class="monthly-summary-stats__label">収支</dt>
+        <dd
+          class="monthly-summary-stats__value monthly-summary-stats__value--balance {% if balance >= 0 %}monthly-summary-stats__value--plus{% else %}monthly-summary-stats__value--minus{% endif %}"
+        >
+          {{ balance|intcomma }}
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <section
+    id="monthly-income-detail"
+    class="income-panel monthly-detail-panel"
+    aria-labelledby="monthly-income-detail-title"
+  >
+    <h2 id="monthly-income-detail-title" class="monthly-summary-detail__heading">
+      収入の詳細
+    </h2>
+    {% if income_entries %}
+    <div class="monthly-detail-table-wrap">
+      <table class="monthly-detail-table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th class="monthly-detail-table__amount-head">合計（円）</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in income_entries %}
+          <tr>
+            <td>{{ row.date|date:"Y/m/d" }}</td>
+            <td class="monthly-detail-table__num monthly-detail-table__num--income">
+              {{ row.amount|intcomma }}
+            </td>
+            <td class="monthly-detail-table__note">{{ row.note|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="monthly-summary-detail__empty">この月の収入はありません。</p>
+    {% endif %}
+  </section>
+
+  <section
+    class="income-panel monthly-detail-panel"
+    aria-labelledby="monthly-expense-detail-title"
+  >
+    <h2 id="monthly-expense-detail-title" class="monthly-summary-detail__heading">
+      支出の詳細
+    </h2>
+    {% if expense_entries %}
+    <div class="monthly-detail-table-wrap">
+      <table class="monthly-detail-table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th class="monthly-detail-table__amount-head">合計（円）</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in expense_entries %}
+          <tr>
+            <td>{{ row.date|date:"Y/m/d" }}</td>
+            <td class="monthly-detail-table__num monthly-detail-table__num--expense">
+              {{ row.amount|intcomma }}
+            </td>
+            <td class="monthly-detail-table__note">{{ row.note|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="monthly-summary-detail__empty">この月の支出はありません。</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

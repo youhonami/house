@@ -66,8 +66,20 @@
         <tbody>
           {% for row in monthly_totals %}
           <tr>
-            <td>{{ row.month|date:"Y年n月" }}</td>
-            <td class="income-summary-table__num">{{ row.total|intcomma }}</td>
+            <td colspan="2" class="income-summary-table__link-cell">
+              <a
+                class="income-summary-table__row-link"
+                href="{% url 'accounts:monthly_summary' %}?year={{ row.month.year }}&month={{ row.month.month }}#monthly-income-detail"
+                aria-label="{{ row.month|date:'Y年n月' }}の月度集計を表示"
+              >
+                <span class="income-summary-table__link-month"
+                  >{{ row.month|date:"Y年n月" }}</span
+                >
+                <span class="income-summary-table__link-amount"
+                  >{{ row.total|intcomma }}</span
+                >
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
