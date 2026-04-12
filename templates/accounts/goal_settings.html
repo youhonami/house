@@ -1,0 +1,54 @@
+{% extends "accounts/base_app.html" %}
+{% load humanize %}
+{% block title %}目標設定 — 家計簿{% endblock %}
+{% block app_body %}
+<div class="page-goal-settings">
+  <section class="income-panel budget-panel">
+    <h1 class="income-heading">目標設定</h1>
+    <p class="budget-panel__lead">
+ 家賃・光熱費・交際費・食費など、カテゴリごとに月間の支出予算（目標）を設定できます。空欄のカテゴリは未設定として保存されません。
+    </p>
+
+    {% if messages %}
+    <ul class="budget-messages" role="status">
+      {% for message in messages %}
+      <li class="budget-messages__item budget-messages__item--{{ message.level_tag }}">
+        {{ message }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" class="income-form budget-form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <ul class="auth-errors">
+        {% for err in form.non_field_errors %}
+        <li>{{ err }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% for field in form %}
+      <div class="income-form__field income-form__field--full budget-form__field">
+        {{ field.label_tag }}{{ field }}
+        {% if field.errors %}
+        <ul class="field-errors">
+          {% for err in field.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="budget-total" aria-live="polite">
+        <span class="budget-total__label">月間予算の合計</span>
+        <span class="budget-total__value">¥{{ budget_total|intcomma }}</span>
+      </div>
+
+      <button type="submit" class="auth-submit income-form__submit">保存する</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

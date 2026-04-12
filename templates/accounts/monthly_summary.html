@@ -53,6 +53,22 @@
           {{ expense_total|intcomma }}
         </dd>
       </div>
+      {% if expense_budget_has_targets %}
+      <div class="monthly-summary-stats__row">
+        <dt class="monthly-summary-stats__label">支出目標（合計）</dt>
+        <dd class="monthly-summary-stats__value monthly-summary-stats__value--budget">
+          {{ expense_budget_total|intcomma }}
+        </dd>
+      </div>
+      <div class="monthly-summary-stats__row">
+        <dt class="monthly-summary-stats__label">目標との差</dt>
+        <dd
+          class="monthly-summary-stats__value monthly-summary-stats__value--budget-diff {% if expense_vs_budget > 0 %}monthly-summary-stats__value--over{% elif expense_vs_budget < 0 %}monthly-summary-stats__value--under{% else %}monthly-summary-stats__value--on-budget{% endif %}"
+        >
+          {% if expense_vs_budget > 0 %}+{% endif %}{{ expense_vs_budget|intcomma }}
+        </dd>
+      </div>
+      {% endif %}
       <div class="monthly-summary-stats__row monthly-summary-stats__row--balance">
         <dt class="monthly-summary-stats__label">収支</dt>
         <dd
@@ -107,12 +123,59 @@
     <h2 id="monthly-expense-detail-title" class="monthly-summary-detail__heading">
       支出の詳細
     </h2>
+    {% if expense_budget_rows %}
+    <div class="monthly-detail-table-wrap monthly-budget-compare-wrap">
+      <table class="monthly-detail-table monthly-budget-compare">
+        <thead>
+          <tr>
+            <th>カテゴリ</th>
+            <th class="monthly-detail-table__amount-head">実際</th>
+            <th class="monthly-detail-table__amount-head">目標</th>
+            <th class="monthly-detail-table__amount-head">差異</th>
+            <th>判定</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in expense_budget_rows %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td class="monthly-detail-table__num monthly-detail-table__num--expense">
+              {{ row.actual|intcomma }}
+            </td>
+            <td class="monthly-detail-table__num">
+              {% if row.budget is not None %}{{ row.budget|intcomma }}{% else %}—{% endif %}
+            </td>
+            <td class="monthly-detail-table__num">
+              {% if row.diff is not None %}
+                {% if row.diff > 0 %}+{{ row.diff|intcomma }}{% else %}{{ row.diff|intcomma }}{% endif %}
+              {% else %}
+              —
+              {% endif %}
+            </td>
+            <td>
+              {% if row.status == 'over' %}
+              <span class="monthly-budget-pill monthly-budget-pill--over">目標超過</span>
+              {% elif row.status == 'under' %}
+              <span class="monthly-budget-pill monthly-budget-pill--under">目標内</span>
+              {% elif row.status == 'on' %}
+              <span class="monthly-budget-pill monthly-budget-pill--on">ちょうど</span>
+              {% else %}
+              <span class="monthly-budget-pill monthly-budget-pill--none">目標未設定</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
     {% if expense_entries %}
     <div class="monthly-detail-table-wrap">
       <table class="monthly-detail-table">
         <thead>
           <tr>
             <th>日付</th>
+            <th>カテゴリ</th>
             <th class="monthly-detail-table__amount-head">合計（円）</th>
             <th>内容</th>
           </tr>
@@ -121,6 +184,7 @@
           {% for row in expense_entries %}
           <tr>
             <td>{{ row.date|date:"Y/m/d" }}</td>
+            <td class="monthly-detail-table__cat">{{ row.get_category_display }}</td>
             <td class="monthly-detail-table__num monthly-detail-table__num--expense">
               {{ row.amount|intcomma }}
             </td>

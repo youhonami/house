@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .models import ExpenseEntry, IncomeEntry
+from .models import ExpenseBudget, ExpenseEntry, IncomeEntry
 
 _LOGIN_ERR = 'メールアドレスまたはパスワードが正しくありません。'
 _W = {'class': 'auth-input'}
@@ -132,10 +132,11 @@ class IncomeEntryForm(forms.ModelForm):
 class ExpenseEntryForm(forms.ModelForm):
     class Meta:
         model = ExpenseEntry
-        fields = ('date', 'amount', 'note')
+        fields = ('date', 'amount', 'category', 'note')
         labels = {
             'date': '日付',
             'amount': '金額',
+            'category': 'カテゴリ',
             'note': '内容',
         }
         widgets = {
@@ -145,11 +146,38 @@ class ExpenseEntryForm(forms.ModelForm):
             'amount': forms.NumberInput(
                 attrs={**_INC_W, 'min': 1, 'step': 1, 'inputmode': 'numeric'}
             ),
+            'category': forms.Select(attrs=_INC_W),
             'note': forms.TextInput(attrs={**_INC_W, 'placeholder': 'メモ'}),
         }
-
     def clean_amount(self):
         amount = self.cleaned_data['amount']
         if amount is not None and amount <= 0:
             raise forms.ValidationError('金額は1円以上で入力してください。')
         return amount
+
+_BUDGET_W = {'class': 'auth-input'}
+
+
+class BudgetSettingsForm(forms.Form):
+    """カテゴリごとの月間支出予算。空��は未設定として保存しません。"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for value, label in ExpenseBudget.Category.choices:
+            self.fields[value] = forms.DecimalField(
+                label=label,
+                required=False,
+                min_value=0,
+                max_digits=12,
+                decimal_places=0,
+                widget=forms.NumberInput(
+                    attrs={
+                        **_BUDGET_W,
+                        'min': 0,
+                        'step': 1,
+                        'inputmode': 'numeric',
+                        'placeholder': '未設定',
+                    }
+                ),
+            )
+

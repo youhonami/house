@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -9,8 +10,14 @@ from django.utils import timezone
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 
-from .forms import EmailLoginForm, ExpenseEntryForm, IncomeEntryForm, RegisterForm
-from .models import ExpenseEntry, IncomeEntry
+from .forms import (
+    BudgetSettingsForm,
+    EmailLoginForm,
+    ExpenseEntryForm,
+    IncomeEntryForm,
+    RegisterForm,
+)
+from .models import ExpenseBudget, ExpenseEntry, IncomeEntry
 
 
 def _home():
@@ -115,6 +122,50 @@ def _monthly_expense_entries(user, year: int, month: int):
     )
 
 
+def _monthly_expense_vs_budget_rows(user, year: int, month: int):
+    """カテゴリごとの実��・目標・�と判定（over / under / on / no_budget）。"""
+    actual_map = {
+        row['category']: row['total']
+        for row in ExpenseEntry.objects.filter(
+            user=user, date__year=year, date__month=month
+        )
+        .values('category')
+        .annotate(total=Sum('amount'))
+    }
+    budget_map = {
+        b.category: b.monthly_amount
+        for b in ExpenseBudget.objects.filter(user=user)
+    }
+    rows = []
+    for value, label in ExpenseBudget.Category.choices:
+        act = actual_map.get(value) or Decimal('0')
+        bud = budget_map.get(value)
+        if bud is None and act == 0:
+            continue
+        if bud is not None:
+            diff = act - bud
+            if diff > 0:
+                status = 'over'
+            elif diff < 0:
+                status = 'under'
+            else:
+                status = 'on'
+        else:
+            diff = None
+            status = 'no_budget'
+        rows.append(
+            {
+                'category': value,
+                'label': label,
+                'actual': act,
+                'budget': bud,
+                'diff': diff,
+                'status': status,
+            }
+        )
+    return rows
+
+
 @login_required
 def income(request):
     if request.method == 'POST':
@@ -173,6 +224,11 @@ def monthly_summary(request):
     income_total, expense_total, balance = _monthly_income_expense_balance(
         request.user, y, m
     )
+    expense_budget_total = _budget_monthly_total(request.user)
+    expense_budget_has_targets = expense_budget_total > 0
+    expense_vs_budget = (
+        expense_total - expense_budget_total if expense_budget_has_targets else None
+    )
     today = timezone.localdate()
     current_first = date(today.year, today.month, 1)
     prev_m = _add_months(target, -1)
@@ -188,6 +244,10 @@ def monthly_summary(request):
             'month_input_value': f'{y:04d}-{m:02d}',
             'income_total': income_total,
             'expense_total': expense_total,
+            'expense_budget_total': expense_budget_total,
+            'expense_budget_has_targets': expense_budget_has_targets,
+            'expense_vs_budget': expense_vs_budget,
+            'expense_budget_rows': _monthly_expense_vs_budget_rows(request.user, y, m),
             'balance': balance,
             'prev_year': prev_m.year,
             'prev_month': prev_m.month,
@@ -200,12 +260,46 @@ def monthly_summary(request):
     )
 
 
+def _budget_initial_for_user(user):
+    rows = ExpenseBudget.objects.filter(user=user)
+    return {r.category: r.monthly_amount for r in rows}
+
+
+def _budget_monthly_total(user):
+    total = ExpenseBudget.objects.filter(user=user).aggregate(s=Sum('monthly_amount'))['s']
+    return total or Decimal('0')
+
+
+def _save_budgets_from_form(user, form):
+    for value, _label in ExpenseBudget.Category.choices:
+        amt = form.cleaned_data.get(value)
+        if amt is not None and amt > 0:
+            ExpenseBudget.objects.update_or_create(
+                user=user,
+                category=value,
+                defaults={'monthly_amount': amt},
+            )
+        else:
+            ExpenseBudget.objects.filter(user=user, category=value).delete()
+
+
 @login_required
 def goal_settings(request):
+    if request.method == 'POST':
+        form = BudgetSettingsForm(request.POST)
+        if form.is_valid():
+            _save_budgets_from_form(request.user, form)
+            messages.success(request, '支出予算を保存しました。')
+            return redirect('accounts:goal_settings')
+    else:
+        form = BudgetSettingsForm(initial=_budget_initial_for_user(request.user))
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('目標設定', '目標設定', 'ここに目標設定の内容を追加予定です。'),
+        'accounts/goal_settings.html',
+        {
+            'form': form,
+            'budget_total': _budget_monthly_total(request.user),
+        },
     )
 
 

@@ -37,6 +37,16 @@
         </div>
       </div>
       <div class="income-form__field income-form__field--full">
+        {{ form.category.label_tag }}{{ form.category }}
+        {% if form.category.errors %}
+        <ul class="field-errors">
+          {% for err in form.category.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div class="income-form__field income-form__field--full">
         {{ form.note.label_tag }}{{ form.note }}
         {% if form.note.errors %}
         <ul class="field-errors">
