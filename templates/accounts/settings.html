@@ -1,0 +1,67 @@
+{% extends "accounts/base_app.html" %}
+{% block title %}ユーザー設定 — 家計簿{% endblock %}
+{% block app_body %}
+<div class="page-settings">
+  <section class="income-panel settings-panel">
+    <h1 class="income-heading">ユーザー設定</h1>
+    <p class="settings-panel__lead">
+      ログインに使うパスワードを変更できます。新しいパスワードは英字（a〜z,
+      A〜Z）のみ、5文字以上です。
+    </p>
+
+    {% if messages %}
+    <ul class="budget-messages" role="status">
+      {% for message in messages %}
+      <li class="budget-messages__item budget-messages__item--{{ message.level_tag }}">
+        {{ message }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" class="income-form settings-form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <ul class="auth-errors">
+        {% for err in form.non_field_errors %}
+        <li>{{ err }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="income-form__field income-form__field--full settings-form__field">
+        {{ form.current_password.label_tag }}{{ form.current_password }}
+        {% if form.current_password.errors %}
+        <ul class="field-errors">
+          {% for err in form.current_password.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div class="income-form__field income-form__field--full settings-form__field">
+        {{ form.new_password1.label_tag }}{{ form.new_password1 }}
+        {% if form.new_password1.errors %}
+        <ul class="field-errors">
+          {% for err in form.new_password1.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div class="income-form__field income-form__field--full settings-form__field">
+        {{ form.new_password2.label_tag }}{{ form.new_password2 }}
+        {% if form.new_password2.errors %}
+        <ul class="field-errors">
+          {% for err in form.new_password2.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="auth-submit income-form__submit">パスワードを変更する</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

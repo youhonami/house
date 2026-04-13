@@ -533,7 +533,8 @@ body.app-shell-lock-scroll {
 /* 収入・支出入力・目標設定ページ */
 .page-income,
 .page-expense,
-.page-goal-settings {
+.page-goal-settings,
+.page-settings {
   width: 100%;
   max-width: 560px;
   margin: 0 auto;
@@ -547,6 +548,17 @@ body.app-shell-lock-scroll {
   font-size: 0.875rem;
   line-height: 1.55;
   color: #666;
+}
+
+.settings-panel__lead {
+  margin: -0.5rem 0 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #666;
+}
+
+.settings-form__field {
+  margin-bottom: 0.85rem;
 }
 
 .budget-messages {

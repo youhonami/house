@@ -100,6 +100,86 @@ class RegisterForm(UserCreationForm):
         return user
 
 
+class PasswordChangeSettingsForm(forms.Form):
+    """ログイン中ユーザーのパスワード変更（登録時と同じ英字ルール）。"""
+
+    _PASSWORD_EN = re.compile(r'^[a-zA-Z]{5,}\Z')
+
+    current_password = forms.CharField(
+        label='現在のパスワード',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                **_W,
+                'autocomplete': 'current-password',
+                'placeholder': '現在のパスワード',
+            }
+        ),
+    )
+    new_password1 = forms.CharField(
+        label='新しいパスワード',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                **_W,
+                'autocomplete': 'new-password',
+                'placeholder': '英字5文字以上',
+            }
+        ),
+    )
+    new_password2 = forms.CharField(
+        label='新しいパスワード（確認）',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                **_W,
+                'autocomplete': 'new-password',
+                'placeholder': '確認のため再入力',
+            }
+        ),
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_current_password(self):
+        pwd = self.cleaned_data.get('current_password')
+        if pwd is None:
+            return pwd
+        if not self.user.check_password(pwd):
+            raise forms.ValidationError(
+                '現在のパスワードが正しくありません。',
+                code='password_incorrect',
+            )
+        return pwd
+
+    def clean_new_password1(self):
+        pwd = self.cleaned_data.get('new_password1')
+        if not pwd:
+            return pwd
+        if not self._PASSWORD_EN.match(pwd):
+            raise forms.ValidationError(
+                'パスワードは英字（a〜z, A〜Z）のみ、5文字以上で入力してください。',
+                code='password_english_min5',
+            )
+        return pwd
+
+    def clean(self):
+        data = super().clean()
+        p1 = data.get('new_password1')
+        p2 = data.get('new_password2')
+        if p1 and p2 and p1 != p2:
+            self.add_error(
+                'new_password2',
+                ValidationError(
+                    '新しいパスワードと確認用が一致しません。',
+                    code='password_mismatch',
+                ),
+            )
+        return data
+
+
 _INC_W = {'class': 'auth-input'}
 
 

@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -15,6 +15,7 @@ from .forms import (
     EmailLoginForm,
     ExpenseEntryForm,
     IncomeEntryForm,
+    PasswordChangeSettingsForm,
     RegisterForm,
 )
 from .models import ExpenseBudget, ExpenseEntry, IncomeEntry
@@ -305,10 +306,21 @@ def goal_settings(request):
 
 @login_required
 def settings_page(request):
+    if request.method == 'POST':
+        form = PasswordChangeSettingsForm(request.user, request.POST)
+        if form.is_valid():
+            user = request.user
+            user.set_password(form.cleaned_data['new_password1'])
+            user.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'パスワードを変更しました。')
+            return redirect('accounts:settings')
+    else:
+        form = PasswordChangeSettingsForm(request.user)
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('設定', '設定', 'ここに設定画面の内容を追加予定です。'),
+        'accounts/settings.html',
+        {'form': form},
     )
 
 
