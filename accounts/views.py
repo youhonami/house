@@ -1,11 +1,13 @@
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
@@ -123,6 +125,54 @@ def _monthly_expense_entries(user, year: int, month: int):
     )
 
 
+_DAY_MIN = date(2000, 1, 1)
+
+
+def _summary_target_day(request):
+    """クエリ d=YYYY-MM-DD から集計対象日を返す。未来日は今日に、下限は2000-01-01。"""
+    today = timezone.localdate()
+    d_param = request.GET.get('d')
+    if d_param:
+        try:
+            parts = d_param.split('-')
+            if len(parts) == 3:
+                y, m, day = int(parts[0]), int(parts[1]), int(parts[2])
+                target = date(y, m, day)
+                if target > today:
+                    target = today
+                if target < _DAY_MIN:
+                    target = _DAY_MIN
+                return target
+        except (TypeError, ValueError):
+            pass
+    return today
+
+
+def _daily_income_expense_balance(user, target: date):
+    income_total = (
+        IncomeEntry.objects.filter(user=user, date=target).aggregate(s=Sum('amount'))[
+            's'
+        ]
+        or Decimal('0')
+    )
+    expense_total = (
+        ExpenseEntry.objects.filter(user=user, date=target).aggregate(s=Sum('amount'))[
+            's'
+        ]
+        or Decimal('0')
+    )
+    balance = income_total - expense_total
+    return income_total, expense_total, balance
+
+
+def _daily_income_entries(user, target: date):
+    return IncomeEntry.objects.filter(user=user, date=target)
+
+
+def _daily_expense_entries(user, target: date):
+    return ExpenseEntry.objects.filter(user=user, date=target)
+
+
 def _monthly_expense_vs_budget_rows(user, year: int, month: int):
     """カテゴリごとの実��・目標・�と判定（over / under / on / no_budget）。"""
     actual_map = {
@@ -211,10 +261,34 @@ def expense(request):
 
 @login_required
 def daily_summary(request):
+    target = _summary_target_day(request)
+    today = timezone.localdate()
+    income_total, expense_total, balance = _daily_income_expense_balance(
+        request.user, target
+    )
+    prev_d = target - timedelta(days=1)
+    next_d = target + timedelta(days=1)
+    can_go_prev = target > _DAY_MIN
+    can_go_next = next_d <= today
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('日別集計', '日別集計', 'ここに日別集計の内容を追加予定です。'),
+        'accounts/daily_summary.html',
+        {
+            'summary_date': target,
+            'period_label': f'{target.year}年{target.month}月{target.day}日',
+            'date_input_value': target.isoformat(),
+            'date_max_value': today.isoformat(),
+            'income_total': income_total,
+            'expense_total': expense_total,
+            'balance': balance,
+            'prev_d': prev_d.isoformat(),
+            'next_d': next_d.isoformat(),
+            'can_go_prev': can_go_prev,
+            'can_go_next': can_go_next,
+            'income_entries': _daily_income_entries(request.user, target),
+            'expense_entries': _daily_expense_entries(request.user, target),
+            'expense_category_choices': ExpenseBudget.Category.choices,
+        },
     )
 
 
@@ -257,7 +331,71 @@ def monthly_summary(request):
             'can_go_next': can_go_next,
             'income_entries': _monthly_income_entries(request.user, y, m),
             'expense_entries': _monthly_expense_entries(request.user, y, m),
+            'expense_category_choices': ExpenseBudget.Category.choices,
         },
+    )
+
+
+def _form_errors_dict(form):
+    return {field: list(msgs) for field, msgs in form.errors.items()}
+
+
+@login_required
+@require_http_methods(['GET', 'POST', 'DELETE'])
+def monthly_income_entry(request, pk):
+    entry = get_object_or_404(IncomeEntry, pk=pk, user=request.user)
+    if request.method == 'GET':
+        return JsonResponse(
+            {
+                'ok': True,
+                'data': {
+                    'id': entry.pk,
+                    'date': entry.date.isoformat(),
+                    'amount': str(int(entry.amount)),
+                    'note': entry.note or '',
+                },
+            }
+        )
+    if request.method == 'DELETE':
+        entry.delete()
+        return JsonResponse({'ok': True})
+    form = IncomeEntryForm(request.POST, instance=entry)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'ok': True})
+    return JsonResponse(
+        {'ok': False, 'errors': _form_errors_dict(form)},
+        status=400,
+    )
+
+
+@login_required
+@require_http_methods(['GET', 'POST', 'DELETE'])
+def monthly_expense_entry(request, pk):
+    entry = get_object_or_404(ExpenseEntry, pk=pk, user=request.user)
+    if request.method == 'GET':
+        return JsonResponse(
+            {
+                'ok': True,
+                'data': {
+                    'id': entry.pk,
+                    'date': entry.date.isoformat(),
+                    'amount': str(int(entry.amount)),
+                    'category': entry.category,
+                    'note': entry.note or '',
+                },
+            }
+        )
+    if request.method == 'DELETE':
+        entry.delete()
+        return JsonResponse({'ok': True})
+    form = ExpenseEntryForm(request.POST, instance=entry)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'ok': True})
+    return JsonResponse(
+        {'ok': False, 'errors': _form_errors_dict(form)},
+        status=400,
     )
 
 
