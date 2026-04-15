@@ -120,41 +120,79 @@
     <h2 id="daily-expense-detail-title" class="monthly-summary-detail__heading">
       支出の詳細
     </h2>
-    {% if expense_entries %}
-    <div class="monthly-detail-table-wrap">
-      <table class="monthly-detail-table">
-        <thead>
-          <tr>
-            <th>カテゴリ</th>
-            <th class="monthly-detail-table__amount-head">合計（円）</th>
-            <th>内容</th>
-            <th class="monthly-detail-table__action-head" scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in expense_entries %}
-          <tr>
-            <td class="monthly-detail-table__cat">{{ row.get_category_display }}</td>
-            <td class="monthly-detail-table__num monthly-detail-table__num--expense">
-              {{ row.amount|intcomma }}
-            </td>
-            <td class="monthly-detail-table__note">{{ row.note|default:"—" }}</td>
-            <td class="monthly-detail-table__action">
-              <button
-                type="button"
-                class="monthly-entry-edit-btn"
-                data-edit-kind="expense"
-                data-edit-url="{% url 'accounts:monthly_expense_entry' row.pk %}"
-              >
-                編集
-              </button>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    {% if expense_category_totals %}
+    <div
+      class="daily-expense-by-category"
+      aria-labelledby="daily-expense-by-category-title"
+    >
+      <h3
+        id="daily-expense-by-category-title"
+        class="daily-summary-detail__subheading"
+      >
+        カテゴリー別の支出
+      </h3>
+      <div class="monthly-detail-table-wrap">
+        <table class="monthly-detail-table">
+          <thead>
+            <tr>
+              <th>カテゴリ</th>
+              <th class="monthly-detail-table__amount-head">合計（円）</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in expense_category_totals %}
+            <tr>
+              <td class="monthly-detail-table__cat">{{ row.label }}</td>
+              <td class="monthly-detail-table__num monthly-detail-table__num--expense">
+                {{ row.total|intcomma }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    {% else %}
+    {% endif %}
+    {% if expense_entries %}
+    <div class="daily-expense-lines" aria-labelledby="daily-expense-lines-title">
+      <h3 id="daily-expense-lines-title" class="daily-summary-detail__subheading">
+        支出の明細
+      </h3>
+      <div class="monthly-detail-table-wrap">
+        <table class="monthly-detail-table">
+          <thead>
+            <tr>
+              <th>カテゴリ</th>
+              <th class="monthly-detail-table__amount-head">合計（円）</th>
+              <th>内容</th>
+              <th class="monthly-detail-table__action-head" scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in expense_entries %}
+            <tr>
+              <td class="monthly-detail-table__cat">{{ row.get_category_display }}</td>
+              <td class="monthly-detail-table__num monthly-detail-table__num--expense">
+                {{ row.amount|intcomma }}
+              </td>
+              <td class="monthly-detail-table__note">{{ row.note|default:"—" }}</td>
+              <td class="monthly-detail-table__action">
+                <button
+                  type="button"
+                  class="monthly-entry-edit-btn"
+                  data-edit-kind="expense"
+                  data-edit-url="{% url 'accounts:monthly_expense_entry' row.pk %}"
+                >
+                  編集
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% elif not expense_category_totals %}
     <p class="monthly-summary-detail__empty">この日の支出はありません。</p>
     {% endif %}
   </section>

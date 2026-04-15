@@ -1010,6 +1010,18 @@ select.auth-input:focus {
   letter-spacing: 0.02em;
 }
 
+.daily-summary-detail__subheading {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #5c4d7a;
+  letter-spacing: 0.02em;
+}
+
+.daily-expense-by-category + .daily-expense-lines {
+  margin-top: 1rem;
+}
+
 .monthly-summary-detail__empty {
   margin: 0;
   font-size: 0.875rem;

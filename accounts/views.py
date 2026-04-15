@@ -173,6 +173,25 @@ def _daily_expense_entries(user, target: date):
     return ExpenseEntry.objects.filter(user=user, date=target)
 
 
+def _daily_expense_category_totals(user, target: date):
+    """指定日の支出をカテゴリ別に集計（金額の多い順）。"""
+    label_map = dict(ExpenseBudget.Category.choices)
+    rows = (
+        ExpenseEntry.objects.filter(user=user, date=target)
+        .values('category')
+        .annotate(total=Sum('amount'))
+        .order_by('-total', 'category')
+    )
+    return [
+        {
+            'category': r['category'],
+            'label': label_map.get(r['category'], r['category']),
+            'total': r['total'] if r['total'] is not None else Decimal('0'),
+        }
+        for r in rows
+    ]
+
+
 def _monthly_expense_vs_budget_rows(user, year: int, month: int):
     """カテゴリごとの実��・目標・�と判定（over / under / on / no_budget）。"""
     actual_map = {
@@ -287,6 +306,9 @@ def daily_summary(request):
             'can_go_next': can_go_next,
             'income_entries': _daily_income_entries(request.user, target),
             'expense_entries': _daily_expense_entries(request.user, target),
+            'expense_category_totals': _daily_expense_category_totals(
+                request.user, target
+            ),
             'expense_category_choices': ExpenseBudget.Category.choices,
         },
     )
