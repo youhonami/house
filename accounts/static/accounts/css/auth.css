@@ -163,9 +163,105 @@
 }
 
 .top-user {
-  margin-bottom: 1.25rem !important;
+  margin-bottom: 0 !important;
+  margin-top: 1.25rem;
   font-size: 0.85rem;
   color: #888;
+}
+
+.top-monthly-summary__period {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5c4d7a;
+  letter-spacing: 0.02em;
+}
+
+.top-monthly-summary {
+  margin: 0 auto;
+  max-width: 280px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.top-monthly-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.top-monthly-summary__row:first-of-type {
+  border-top: 1px solid #eee;
+}
+
+.top-monthly-summary__row--balance {
+  border-bottom: none;
+  padding-top: 0.75rem;
+  margin-top: 0.15rem;
+}
+
+.top-monthly-summary__label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.top-monthly-summary__value {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.top-monthly-summary__value--income {
+  color: #1e6b40;
+}
+
+.top-monthly-summary__value--expense {
+  color: #b71c1c;
+}
+
+.top-monthly-summary__value--balance {
+  font-size: 1.05rem;
+}
+
+.top-monthly-summary__value--plus {
+  color: #1e6b40;
+}
+
+.top-monthly-summary__value--minus {
+  color: #b71c1c;
+}
+
+.top-month-chart-section {
+  margin-top: 1.25rem;
+  width: 100%;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.top-month-chart-section__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5c4d7a;
+  letter-spacing: 0.02em;
+}
+
+.top-month-chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 140px;
+  padding: 0.35rem 0.15rem 0;
+  box-sizing: border-box;
 }
 
 .auth-card--home form {

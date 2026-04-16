@@ -1,12 +1,53 @@
 {% extends "accounts/base_app.html" %}
+{% load humanize static %}
 {% block app_shell_body_class %}app-shell__body--center{% endblock %}
 {% block title %}トップ — 家計簿{% endblock %}
 {% block app_body %}
 <div class="auth-card auth-card--home">
-  <h1>トップページ（仮）</h1>
-  <p class="top-placeholder">ここに今後、メインの画面を追加します。</p>
+  <h1>トップ</h1>
+  <p class="top-monthly-summary__period">{{ this_month_label }}の合計</p>
+  <dl class="top-monthly-summary">
+    <div class="top-monthly-summary__row">
+      <dt class="top-monthly-summary__label">収入合計</dt>
+      <dd class="top-monthly-summary__value top-monthly-summary__value--income">
+        {{ this_month_income_total|intcomma }}
+      </dd>
+    </div>
+    <div class="top-monthly-summary__row">
+      <dt class="top-monthly-summary__label">支出合計</dt>
+      <dd class="top-monthly-summary__value top-monthly-summary__value--expense">
+        {{ this_month_expense_total|intcomma }}
+      </dd>
+    </div>
+    <div class="top-monthly-summary__row top-monthly-summary__row--balance">
+      <dt class="top-monthly-summary__label">収支</dt>
+      <dd
+        class="top-monthly-summary__value top-monthly-summary__value--balance {% if this_month_balance >= 0 %}top-monthly-summary__value--plus{% else %}top-monthly-summary__value--minus{% endif %}"
+      >
+        {{ this_month_balance|intcomma }}
+      </dd>
+    </div>
+  </dl>
+  <div
+    class="top-month-chart-section"
+    role="region"
+    aria-label="{{ this_month_label }}の収入と支出の比較グラフ"
+  >
+    <p class="top-month-chart-section__title">グラフ</p>
+    <div class="top-month-chart-wrap">
+      <canvas id="top-month-chart" aria-hidden="true"></canvas>
+    </div>
+  </div>
+  {{ chart_income|json_script:"top-chart-income" }}
+  {{ chart_expense|json_script:"top-chart-expense" }}
   <p class="top-user">
     {{ request.user.email|default:request.user.username }}
   </p>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'accounts/js/top-chart.js' %}"></script>
 {% endblock %}

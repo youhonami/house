@@ -29,7 +29,22 @@ def _home():
 
 @login_required
 def top(request):
-    return render(request, 'accounts/top.html')
+    today = timezone.localdate()
+    income_total, expense_total, balance = _monthly_income_expense_balance(
+        request.user, today.year, today.month
+    )
+    return render(
+        request,
+        'accounts/top.html',
+        {
+            'this_month_label': f'{today.year}年{today.month}月',
+            'this_month_income_total': income_total,
+            'this_month_expense_total': expense_total,
+            'this_month_balance': balance,
+            'chart_income': int(income_total),
+            'chart_expense': int(expense_total),
+        },
+    )
 
 
 def _stub_ctx(title_suffix: str, heading: str, note: str):
