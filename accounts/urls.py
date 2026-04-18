@@ -22,6 +22,8 @@ urlpatterns = [
         name='monthly_expense_entry',
     ),
     path('goals/', views.goal_settings, name='goal_settings'),
+    path('diary/write/', views.diary_write, name='diary_write'),
+    path('diary/browse/', views.diary_browse, name='diary_browse'),
     path('settings/', views.settings_page, name='settings'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),

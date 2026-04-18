@@ -480,6 +480,24 @@ def goal_settings(request):
 
 
 @login_required
+def diary_write(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('日記を書く', '日記を書く', 'ここに日記を書く画面の内容を追加予定です。'),
+    )
+
+
+@login_required
+def diary_browse(request):
+    return render(
+        request,
+        'accounts/placeholder.html',
+        _stub_ctx('日記を見る', '日記を見る', 'ここに日記を見る画面の内容を追加予定です。'),
+    )
+
+
+@login_required
 def settings_page(request):
     if request.method == 'POST':
         form = PasswordChangeSettingsForm(request.user, request.POST)

@@ -43,6 +43,18 @@ SIDEBAR_NAV_ITEMS: list[dict] = [
     },
     {
         'kind': 'link',
+        'label': '日記を書く',
+        'url_name': 'accounts:diary_write',
+        'match': 'diary_write',
+    },
+    {
+        'kind': 'link',
+        'label': '日記を見る',
+        'url_name': 'accounts:diary_browse',
+        'match': 'diary_browse',
+    },
+    {
+        'kind': 'link',
         'label': 'ユーザー設定',
         'url_name': 'accounts:settings',
         'match': 'settings',
