@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .models import ExpenseBudget, ExpenseEntry, IncomeEntry
+from .models import DiaryEntry, ExpenseBudget, ExpenseEntry, IncomeEntry
 
 _LOGIN_ERR = 'メールアドレスまたはパスワードが正しくありません。'
 _W = {'class': 'auth-input'}
@@ -234,6 +234,40 @@ class ExpenseEntryForm(forms.ModelForm):
         if amount is not None and amount <= 0:
             raise forms.ValidationError('金額は1円以上で入力してください。')
         return amount
+
+
+class DiaryEntryForm(forms.ModelForm):
+    class Meta:
+        model = DiaryEntry
+        fields = ('date', 'title', 'events', 'tomorrow_goals')
+        labels = {
+            'date': '日付',
+            'title': 'タイトル',
+            'events': '出来事',
+            'tomorrow_goals': '明日の目標',
+        }
+        widgets = {
+            'date': forms.DateInput(
+                attrs={**_INC_W, 'type': 'date', 'autocomplete': 'off'}
+            ),
+            'title': forms.TextInput(
+                attrs={**_INC_W, 'placeholder': '今日の日記のタイトル'}
+            ),
+            'events': forms.Textarea(
+                attrs={
+                    **_INC_W,
+                    'rows': 6,
+                    'placeholder': '今日あったことを書きます',
+                }
+            ),
+            'tomorrow_goals': forms.Textarea(
+                attrs={
+                    **_INC_W,
+                    'rows': 4,
+                    'placeholder': '明日の目標ややりたいことを書きます',
+                }
+            ),
+        }
 
 _BUDGET_W = {'class': 'auth-input'}
 

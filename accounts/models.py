@@ -94,3 +94,25 @@ class ExpenseEntry(models.Model):
 
     def __str__(self):
         return f'{self.date} {self.amount} {self.note or ""}'
+
+
+class DiaryEntry(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='diary_entries',
+    )
+    date = models.DateField('日付')
+    title = models.CharField('タイトル', max_length=200)
+    events = models.TextField('出来事', blank=True)
+    tomorrow_goals = models.TextField('明日の目標', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-date', '-created_at', '-id']
+        verbose_name = '日記'
+        verbose_name_plural = '日記'
+
+    def __str__(self):
+        return f'{self.date} {self.title}'

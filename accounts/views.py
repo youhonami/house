@@ -14,13 +14,14 @@ from django.db.models.functions import TruncMonth
 
 from .forms import (
     BudgetSettingsForm,
+    DiaryEntryForm,
     EmailLoginForm,
     ExpenseEntryForm,
     IncomeEntryForm,
     PasswordChangeSettingsForm,
     RegisterForm,
 )
-from .models import ExpenseBudget, ExpenseEntry, IncomeEntry
+from .models import DiaryEntry, ExpenseBudget, ExpenseEntry, IncomeEntry
 
 
 def _home():
@@ -481,10 +482,20 @@ def goal_settings(request):
 
 @login_required
 def diary_write(request):
+    if request.method == 'POST':
+        form = DiaryEntryForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
+            messages.success(request, '日記を保存しました。')
+            return redirect('accounts:diary_write')
+    else:
+        form = DiaryEntryForm(initial={'date': timezone.localdate()})
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('日記を書く', '日記を書く', 'ここに日記を書く画面の内容を追加予定です。'),
+        'accounts/diary_write.html',
+        {'form': form},
     )
 
 

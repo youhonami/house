@@ -1,0 +1,82 @@
+{% extends "accounts/base_app.html" %}
+{% block title %}日記を書く — 家計簿{% endblock %}
+{% block app_body %}
+<div class="page-diary-write">
+  <section class="income-panel income-panel--form">
+    <h1 class="income-heading">日記を書く</h1>
+    <p class="diary-write__lead">
+      日付・タイトル・今日の出来事・明日の目標を記録できます。
+    </p>
+
+    {% if messages %}
+    <ul class="budget-messages" role="status">
+      {% for message in messages %}
+      <li class="budget-messages__item budget-messages__item--{{ message.level_tag }}">
+        {{ message }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" class="income-form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <ul class="auth-errors">
+        {% for err in form.non_field_errors %}
+        <li>{{ err }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="income-form__row">
+        <div class="income-form__field">
+          {{ form.date.label_tag }}{{ form.date }}
+          {% if form.date.errors %}
+          <ul class="field-errors">
+            {% for err in form.date.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+      <div class="income-form__field income-form__field--full">
+        {{ form.title.label_tag }}{{ form.title }}
+        {% if form.title.errors %}
+        <ul class="field-errors">
+          {% for err in form.title.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <div class="income-form__field income-form__field--full">
+        {{ form.events.label_tag }}{{ form.events }}
+        {% if form.events.errors %}
+        <ul class="field-errors">
+          {% for err in form.events.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <div class="income-form__field income-form__field--full">
+        {{ form.tomorrow_goals.label_tag }}{{ form.tomorrow_goals }}
+        {% if form.tomorrow_goals.errors %}
+        <ul class="field-errors">
+          {% for err in form.tomorrow_goals.errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="auth-submit income-form__submit">
+        保存する
+      </button>
+    </form>
+  </section>
+</div>
+{% endblock %}

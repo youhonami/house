@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import ExpenseBudget, ExpenseEntry, IncomeEntry
+from .models import DiaryEntry, ExpenseBudget, ExpenseEntry, IncomeEntry
+
+
+@admin.register(DiaryEntry)
+class DiaryEntryAdmin(admin.ModelAdmin):
+    list_display = ('date', 'user', 'title', 'created_at')
+    list_filter = ('date',)
+    search_fields = ('title', 'events', 'tomorrow_goals')
+    date_hierarchy = 'date'
 
 
 @admin.register(IncomeEntry)
