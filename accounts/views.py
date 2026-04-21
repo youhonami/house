@@ -1,3 +1,4 @@
+import calendar
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -499,12 +500,89 @@ def diary_write(request):
     )
 
 
+def _add_month(year: int, month: int, delta: int) -> tuple[int, int]:
+    month += delta
+    while month > 12:
+        month -= 12
+        year += 1
+    while month < 1:
+        month += 12
+        year -= 1
+    return year, month
+
+
 @login_required
 def diary_browse(request):
+    user = request.user
+    today = timezone.localdate()
+
+    try:
+        cal_year = int(request.GET.get('year', today.year))
+        cal_month = int(request.GET.get('month', today.month))
+    except (TypeError, ValueError):
+        cal_year, cal_month = today.year, today.month
+    cal_month = max(1, min(12, cal_month))
+    cal_year = max(1900, min(2100, cal_year))
+
+    date_str = request.GET.get('date')
+    selected_date = None
+    if date_str:
+        try:
+            selected_date = date.fromisoformat(date_str)
+        except ValueError:
+            selected_date = None
+
+    shown = request.GET.get('shown') == '1'
+
+    prev_y, prev_m = _add_month(cal_year, cal_month, -1)
+    next_y, next_m = _add_month(cal_year, cal_month, 1)
+
+    cal_obj = calendar.Calendar(firstweekday=calendar.MONDAY)
+    calendar_weeks = cal_obj.monthdatescalendar(cal_year, cal_month)
+
+    month_entries = DiaryEntry.objects.filter(
+        user=user,
+        date__year=cal_year,
+        date__month=cal_month,
+    )
+    dates_with_entries = set(month_entries.values_list('date', flat=True).distinct())
+
+    entries = []
+    open_entry_id = None
+    if shown and selected_date:
+        entries = list(
+            DiaryEntry.objects.filter(user=user, date=selected_date).order_by(
+                '-created_at',
+                '-id',
+            )
+        )
+        entry_raw = request.GET.get('entry')
+        if entry_raw:
+            try:
+                want_pk = int(entry_raw)
+                if any(e.pk == want_pk for e in entries):
+                    open_entry_id = want_pk
+            except (ValueError, TypeError):
+                pass
+
     return render(
         request,
-        'accounts/placeholder.html',
-        _stub_ctx('日記を見る', '日記を見る', 'ここに日記を見る画面の内容を追加予定です。'),
+        'accounts/diary_browse.html',
+        {
+            'today': today,
+            'cal_year': cal_year,
+            'cal_month': cal_month,
+            'calendar_weeks': calendar_weeks,
+            'dates_with_entries': dates_with_entries,
+            'prev_year': prev_y,
+            'prev_month': prev_m,
+            'next_year': next_y,
+            'next_month': next_m,
+            'selected_date': selected_date,
+            'shown': shown,
+            'entries': entries,
+            'open_entry_id': open_entry_id,
+        },
     )
 
 

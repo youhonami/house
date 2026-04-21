@@ -1,0 +1,130 @@
+{% extends "accounts/base_app.html" %}
+{% load static %}
+{% block title %}日記を見る — 家計簿{% endblock %}
+{% block app_body %}
+<div class="page-diary-browse">
+  <section class="income-panel income-panel--form">
+    <h1 class="income-heading">日記を見る</h1>
+    <p class="diary-browse__lead">
+      カレンダーで日付を選び「表示」を押すと、その日に保存した日記のタイトルが表示されます。タイトルを押すと本文が開きます。
+    </p>
+
+    <div class="diary-cal">
+      <div class="diary-cal__nav">
+        <a
+          class="diary-cal__nav-btn"
+          href="{% url 'accounts:diary_browse' %}?year={{ prev_year }}&month={{ prev_month }}"
+          aria-label="前の月へ"
+        >&lsaquo;</a>
+        <span class="diary-cal__caption">{{ cal_year }}年{{ cal_month }}月</span>
+        <a
+          class="diary-cal__nav-btn"
+          href="{% url 'accounts:diary_browse' %}?year={{ next_year }}&month={{ next_month }}"
+          aria-label="次の月へ"
+        >&rsaquo;</a>
+      </div>
+
+      <div class="diary-cal__weekdays" aria-hidden="true">
+        <span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span><span>日</span>
+      </div>
+
+      <form
+        method="get"
+        class="diary-cal__form"
+        id="diary-browse-form"
+        data-diary-browse-form
+        action="{% url 'accounts:diary_browse' %}"
+      >
+        <input type="hidden" name="year" value="{{ cal_year }}" />
+        <input type="hidden" name="month" value="{{ cal_month }}" />
+
+        <div class="diary-cal__grid" role="group" aria-label="日付を選ぶ">
+          {% for week in calendar_weeks %}
+            {% for d in week %}
+              {% if d.month != cal_month %}
+              <div class="diary-cal__cell diary-cal__cell--pad" aria-hidden="true"></div>
+              {% else %}
+              <div class="diary-cal__cell">
+                <input
+                  type="radio"
+                  name="date"
+                  value="{{ d|date:'Y-m-d' }}"
+                  id="cal-day-{{ d|date:'Y-m-d' }}"
+                  class="diary-cal__radio"
+                  {% if selected_date == d %}checked{% endif %}
+                />
+                <label
+                  for="cal-day-{{ d|date:'Y-m-d' }}"
+                  class="diary-cal__day-label{% if d == today %} diary-cal__day-label--today{% endif %}{% if d in dates_with_entries %} diary-cal__day-label--has-entry{% endif %}"
+                >
+                  <span class="diary-cal__num">{{ d.day }}</span>
+                  {% if d in dates_with_entries %}
+                  <span class="diary-cal__dot" title="日記あり" aria-hidden="true"></span>
+                  {% endif %}
+                </label>
+              </div>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <div class="diary-browse__show-wrap">
+          <button type="submit" name="shown" value="1" class="auth-submit income-form__submit diary-browse__show-btn">
+            表示
+          </button>
+        </div>
+      </form>
+    </div>
+
+    {% if shown and not selected_date %}
+    <p class="diary-browse__hint" role="status">カレンダーで日付を選んでから「表示」を押してください。</p>
+    {% endif %}
+
+    {% if shown and selected_date %}
+    <div id="diary-browse-titles" class="diary-browse__titles">
+      {% if not entries %}
+      <p class="diary-browse__empty">この日付の日記はまだありません。</p>
+      {% else %}
+      {% for e in entries %}
+      <details
+        class="diary-browse__entry"
+        id="entry-{{ e.pk }}"
+        {% if open_entry_id == e.pk %}open{% endif %}
+      >
+        <summary class="diary-browse__summary">{{ e.title }}</summary>
+        <div class="diary-browse__detail-body">
+          <p class="diary-browse__detail-meta diary-browse__detail-meta--tight">
+            {{ selected_date|date:"Y年n月j日" }}の記録
+            {% if e.updated_at != e.created_at %}
+            ・更新 {{ e.updated_at|date:"Y/m/d H:i" }}
+            {% endif %}
+          </p>
+          <div class="diary-browse__block">
+            <span class="diary-browse__label">出来事</span>
+            {% if e.events %}
+            <p class="diary-browse__text">{{ e.events }}</p>
+            {% else %}
+            <p class="diary-browse__text diary-browse__text--muted">（未入力）</p>
+            {% endif %}
+          </div>
+          <div class="diary-browse__block">
+            <span class="diary-browse__label">明日の目標</span>
+            {% if e.tomorrow_goals %}
+            <p class="diary-browse__text">{{ e.tomorrow_goals }}</p>
+            {% else %}
+            <p class="diary-browse__text diary-browse__text--muted">（未入力）</p>
+            {% endif %}
+          </div>
+        </div>
+      </details>
+      {% endfor %}
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'accounts/js/diary-browse.js' %}" defer></script>
+{% endblock %}
