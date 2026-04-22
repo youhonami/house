@@ -1,5 +1,6 @@
 import calendar
 from datetime import date, timedelta
+from urllib.parse import urlencode
 from decimal import Decimal
 
 from django.conf import settings
@@ -8,6 +9,7 @@ from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.db.models import Sum
@@ -584,6 +586,24 @@ def diary_browse(request):
             'open_entry_id': open_entry_id,
         },
     )
+
+
+@login_required
+@require_http_methods(['POST'])
+def diary_delete(request, pk):
+    entry = get_object_or_404(DiaryEntry, pk=pk, user=request.user)
+    d = entry.date
+    entry.delete()
+    messages.success(request, '日記を削除しました。')
+    q = urlencode(
+        {
+            'year': d.year,
+            'month': d.month,
+            'date': d.isoformat(),
+            'shown': '1',
+        }
+    )
+    return redirect(f'{reverse("accounts:diary_browse")}?{q}')
 
 
 @login_required

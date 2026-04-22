@@ -900,18 +900,30 @@ body.app-shell-lock-scroll {
   gap: 0.5rem;
 }
 
-.diary-browse__entry {
-  margin: 0;
-  padding: 0;
+.diary-browse__entry-shell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
   border-radius: 12px;
   border: 1px solid #e8e2f2;
   background: #fff;
   overflow: hidden;
 }
 
-.diary-browse__entry[open] {
+.diary-browse__entry-shell:has(.diary-browse__entry[open]) {
   border-color: #d4cce8;
   box-shadow: 0 2px 12px rgba(88, 74, 120, 0.08);
+}
+
+.diary-browse__entry {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: hidden;
 }
 
 .diary-browse__summary {
@@ -928,13 +940,61 @@ body.app-shell-lock-scroll {
   list-style: none;
 }
 
+.diary-browse__summary-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: inherit;
+}
+
+.diary-browse__delete-form {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0.55rem 0.45rem 0.55rem 0;
+  align-self: flex-start;
+}
+
+.diary-browse__delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0.45rem;
+  font-family: inherit;
+  line-height: 0;
+  color: #b42318;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.diary-browse__delete-btn:hover {
+  color: #8f1c13;
+  background: #fef3f2;
+  border-color: #fecdca;
+}
+
+.diary-browse__delete-btn:focus-visible {
+  outline: 2px solid #b42318;
+  outline-offset: 2px;
+}
+
+.diary-browse__delete-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
 .diary-browse__summary::-webkit-details-marker {
   display: none;
 }
 
-.diary-browse__summary::after {
-  content: "";
+.diary-browse__summary-chevron {
   flex-shrink: 0;
+  display: block;
   width: 0.55em;
   height: 0.55em;
   margin-top: 0.1em;
@@ -944,7 +1004,7 @@ body.app-shell-lock-scroll {
   transition: transform 0.2s ease;
 }
 
-.diary-browse__entry[open] .diary-browse__summary::after {
+.diary-browse__entry[open] .diary-browse__summary-chevron {
   transform: rotate(-135deg);
 }
 

@@ -9,6 +9,16 @@
       カレンダーで日付を選び「表示」を押すと、その日に保存した日記のタイトルが表示されます。タイトルを押すと本文が開きます。
     </p>
 
+    {% if messages %}
+    <ul class="budget-messages" role="status">
+      {% for message in messages %}
+      <li class="budget-messages__item budget-messages__item--{{ message.level_tag }}">
+        {{ message }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
     <div class="diary-cal">
       <div class="diary-cal__nav">
         <a
@@ -86,37 +96,71 @@
       <p class="diary-browse__empty">この日付の日記はまだありません。</p>
       {% else %}
       {% for e in entries %}
-      <details
-        class="diary-browse__entry"
-        id="entry-{{ e.pk }}"
-        {% if open_entry_id == e.pk %}open{% endif %}
-      >
-        <summary class="diary-browse__summary">{{ e.title }}</summary>
-        <div class="diary-browse__detail-body">
-          <p class="diary-browse__detail-meta diary-browse__detail-meta--tight">
-            {{ selected_date|date:"Y年n月j日" }}の記録
-            {% if e.updated_at != e.created_at %}
-            ・更新 {{ e.updated_at|date:"Y/m/d H:i" }}
-            {% endif %}
-          </p>
-          <div class="diary-browse__block">
-            <span class="diary-browse__label">出来事</span>
-            {% if e.events %}
-            <p class="diary-browse__text">{{ e.events }}</p>
-            {% else %}
-            <p class="diary-browse__text diary-browse__text--muted">（未入力）</p>
-            {% endif %}
+      <div class="diary-browse__entry-shell">
+        <details
+          class="diary-browse__entry"
+          id="entry-{{ e.pk }}"
+          {% if open_entry_id == e.pk %}open{% endif %}
+        >
+          <summary class="diary-browse__summary">
+            <span class="diary-browse__summary-title">{{ e.title }}</span>
+            <span class="diary-browse__summary-chevron" aria-hidden="true"></span>
+          </summary>
+          <div class="diary-browse__detail-body">
+            <p class="diary-browse__detail-meta diary-browse__detail-meta--tight">
+              {{ selected_date|date:"Y年n月j日" }}の記録
+              {% if e.updated_at != e.created_at %}
+              ・更新 {{ e.updated_at|date:"Y/m/d H:i" }}
+              {% endif %}
+            </p>
+            <div class="diary-browse__block">
+              <span class="diary-browse__label">出来事</span>
+              {% if e.events %}
+              <p class="diary-browse__text">{{ e.events }}</p>
+              {% else %}
+              <p class="diary-browse__text diary-browse__text--muted">（未入力）</p>
+              {% endif %}
+            </div>
+            <div class="diary-browse__block">
+              <span class="diary-browse__label">明日の目標</span>
+              {% if e.tomorrow_goals %}
+              <p class="diary-browse__text">{{ e.tomorrow_goals }}</p>
+              {% else %}
+              <p class="diary-browse__text diary-browse__text--muted">（未入力）</p>
+              {% endif %}
+            </div>
           </div>
-          <div class="diary-browse__block">
-            <span class="diary-browse__label">明日の目標</span>
-            {% if e.tomorrow_goals %}
-            <p class="diary-browse__text">{{ e.tomorrow_goals }}</p>
-            {% else %}
-            <p class="diary-browse__text diary-browse__text--muted">（未入力）</p>
-            {% endif %}
-          </div>
-        </div>
-      </details>
+        </details>
+        <form
+          method="post"
+          action="{% url 'accounts:diary_delete' e.pk %}"
+          class="diary-browse__delete-form"
+          onsubmit="return confirm('この日記を削除しますか？');"
+        >
+          {% csrf_token %}
+          <button type="submit" class="diary-browse__delete-btn" aria-label="この日記を削除">
+            <svg
+              class="diary-browse__delete-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <line x1="10" y1="11" x2="10" y2="17" />
+              <line x1="14" y1="11" x2="14" y2="17" />
+            </svg>
+          </button>
+        </form>
+      </div>
       {% endfor %}
       {% endif %}
     </div>

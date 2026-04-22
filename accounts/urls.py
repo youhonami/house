@@ -24,6 +24,7 @@ urlpatterns = [
     path('goals/', views.goal_settings, name='goal_settings'),
     path('diary/write/', views.diary_write, name='diary_write'),
     path('diary/browse/', views.diary_browse, name='diary_browse'),
+    path('diary/<int:pk>/delete/', views.diary_delete, name='diary_delete'),
     path('settings/', views.settings_page, name='settings'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
