@@ -1,48 +1,80 @@
 {% extends "accounts/base_app.html" %}
 {% load humanize static %}
-{% block app_shell_body_class %}app-shell__body--center{% endblock %}
-{% block title %}トップ — 家計簿{% endblock %}
+{% block app_shell_body_class %}app-shell__body--top-home{% endblock %}
+{% block title %}収支概要 — 家計簿{% endblock %}
 {% block app_body %}
-<div class="auth-card auth-card--home">
-  <h1>トップ</h1>
-  <p class="top-monthly-summary__period">{{ this_month_label }}の合計</p>
-  <dl class="top-monthly-summary">
-    <div class="top-monthly-summary__row">
-      <dt class="top-monthly-summary__label">収入合計</dt>
-      <dd class="top-monthly-summary__value top-monthly-summary__value--income">
-        {{ this_month_income_total|intcomma }}
-      </dd>
+<div class="top-page">
+  <div class="top-page__main auth-card auth-card--home">
+    <h1>収支概要</h1>
+    <p class="top-monthly-summary__period">{{ this_month_label }}の合計</p>
+    <dl class="top-monthly-summary">
+      <div class="top-monthly-summary__row">
+        <dt class="top-monthly-summary__label">収入合計</dt>
+        <dd class="top-monthly-summary__value top-monthly-summary__value--income">
+          {{ this_month_income_total|intcomma }}
+        </dd>
+      </div>
+      <div class="top-monthly-summary__row">
+        <dt class="top-monthly-summary__label">支出合計</dt>
+        <dd class="top-monthly-summary__value top-monthly-summary__value--expense">
+          {{ this_month_expense_total|intcomma }}
+        </dd>
+      </div>
+      <div class="top-monthly-summary__row top-monthly-summary__row--balance">
+        <dt class="top-monthly-summary__label">収支</dt>
+        <dd
+          class="top-monthly-summary__value top-monthly-summary__value--balance {% if this_month_balance >= 0 %}top-monthly-summary__value--plus{% else %}top-monthly-summary__value--minus{% endif %}"
+        >
+          {{ this_month_balance|intcomma }}
+        </dd>
+      </div>
+    </dl>
+    <div
+      class="top-month-chart-section"
+      role="region"
+      aria-label="{{ this_month_label }}の収入と支出の比較グラフ"
+    >
+      <p class="top-month-chart-section__title">グラフ</p>
+      <div class="top-month-chart-wrap">
+        <canvas id="top-month-chart" aria-hidden="true"></canvas>
+      </div>
     </div>
-    <div class="top-monthly-summary__row">
-      <dt class="top-monthly-summary__label">支出合計</dt>
-      <dd class="top-monthly-summary__value top-monthly-summary__value--expense">
-        {{ this_month_expense_total|intcomma }}
-      </dd>
-    </div>
-    <div class="top-monthly-summary__row top-monthly-summary__row--balance">
-      <dt class="top-monthly-summary__label">収支</dt>
-      <dd
-        class="top-monthly-summary__value top-monthly-summary__value--balance {% if this_month_balance >= 0 %}top-monthly-summary__value--plus{% else %}top-monthly-summary__value--minus{% endif %}"
-      >
-        {{ this_month_balance|intcomma }}
-      </dd>
-    </div>
-  </dl>
-  <div
-    class="top-month-chart-section"
-    role="region"
-    aria-label="{{ this_month_label }}の収入と支出の比較グラフ"
-  >
-    <p class="top-month-chart-section__title">グラフ</p>
-    <div class="top-month-chart-wrap">
-      <canvas id="top-month-chart" aria-hidden="true"></canvas>
-    </div>
+    {{ chart_income|json_script:"top-chart-income" }}
+    {{ chart_expense|json_script:"top-chart-expense" }}
+    <p class="top-user">
+      {{ request.user.email|default:request.user.username }}
+    </p>
   </div>
-  {{ chart_income|json_script:"top-chart-income" }}
-  {{ chart_expense|json_script:"top-chart-expense" }}
-  <p class="top-user">
-    {{ request.user.email|default:request.user.username }}
-  </p>
+
+  <aside
+    class="top-page__aside auth-card top-yesterday-goals"
+    aria-labelledby="top-today-goals-heading"
+  >
+    <h2 id="top-today-goals-heading" class="top-yesterday-goals__heading">
+      今日の目標
+    </h2>
+    <p class="top-yesterday-goals__period">
+      {{ yesterday_date|date:"Y年n月j日" }}の記録
+    </p>
+    {% if not yesterday_diary_entries %}
+    <p class="top-yesterday-goals__empty">昨日の日記はまだありません。</p>
+    {% elif not yesterday_has_any_goal %}
+    <p class="top-yesterday-goals__empty">
+      昨日の日記には「明日の目標」が書かれていません。
+    </p>
+    {% else %}
+      {% for entry in yesterday_goal_entries %}
+      <div class="top-yesterday-goals__block">
+        {% if yesterday_goal_entries|length > 1 %}
+        <p class="top-yesterday-goals__diary-title">{{ entry.title }}</p>
+        {% endif %}
+        <div class="top-yesterday-goals__text">
+          {{ entry.tomorrow_goals|linebreaksbr }}
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
+  </aside>
 </div>
 {% endblock %}
 

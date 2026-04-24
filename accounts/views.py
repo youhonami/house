@@ -34,9 +34,20 @@ def _home():
 @login_required
 def top(request):
     today = timezone.localdate()
+    yesterday = today - timedelta(days=1)
     income_total, expense_total, balance = _monthly_income_expense_balance(
         request.user, today.year, today.month
     )
+    yesterday_diary_entries = list(
+        DiaryEntry.objects.filter(user=request.user, date=yesterday).order_by(
+            '-created_at',
+            '-id',
+        )
+    )
+    yesterday_goal_entries = [
+        e for e in yesterday_diary_entries if (e.tomorrow_goals or '').strip()
+    ]
+    yesterday_has_any_goal = bool(yesterday_goal_entries)
     return render(
         request,
         'accounts/top.html',
@@ -47,6 +58,10 @@ def top(request):
             'this_month_balance': balance,
             'chart_income': int(income_total),
             'chart_expense': int(expense_total),
+            'yesterday_date': yesterday,
+            'yesterday_diary_entries': yesterday_diary_entries,
+            'yesterday_goal_entries': yesterday_goal_entries,
+            'yesterday_has_any_goal': yesterday_has_any_goal,
         },
     )
 
