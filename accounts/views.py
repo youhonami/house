@@ -528,11 +528,8 @@ def _add_month(year: int, month: int, delta: int) -> tuple[int, int]:
     return year, month
 
 
-@login_required
-def diary_browse(request):
-    user = request.user
+def _calendar_month_context(request):
     today = timezone.localdate()
-
     try:
         cal_year = int(request.GET.get('year', today.year))
         cal_month = int(request.GET.get('month', today.month))
@@ -540,6 +537,30 @@ def diary_browse(request):
         cal_year, cal_month = today.year, today.month
     cal_month = max(1, min(12, cal_month))
     cal_year = max(1900, min(2100, cal_year))
+
+    prev_y, prev_m = _add_month(cal_year, cal_month, -1)
+    next_y, next_m = _add_month(cal_year, cal_month, 1)
+    cal_obj = calendar.Calendar(firstweekday=calendar.MONDAY)
+
+    return {
+        'today': today,
+        'cal_year': cal_year,
+        'cal_month': cal_month,
+        'calendar_weeks': cal_obj.monthdatescalendar(cal_year, cal_month),
+        'prev_year': prev_y,
+        'prev_month': prev_m,
+        'next_year': next_y,
+        'next_month': next_m,
+    }
+
+
+@login_required
+def diary_browse(request):
+    user = request.user
+    calendar_context = _calendar_month_context(request)
+    today = calendar_context['today']
+    cal_year = calendar_context['cal_year']
+    cal_month = calendar_context['cal_month']
 
     date_str = request.GET.get('date')
     selected_date = None
@@ -550,12 +571,6 @@ def diary_browse(request):
             selected_date = None
 
     shown = request.GET.get('shown') == '1'
-
-    prev_y, prev_m = _add_month(cal_year, cal_month, -1)
-    next_y, next_m = _add_month(cal_year, cal_month, 1)
-
-    cal_obj = calendar.Calendar(firstweekday=calendar.MONDAY)
-    calendar_weeks = cal_obj.monthdatescalendar(cal_year, cal_month)
 
     month_entries = DiaryEntry.objects.filter(
         user=user,
@@ -586,15 +601,8 @@ def diary_browse(request):
         request,
         'accounts/diary_browse.html',
         {
-            'today': today,
-            'cal_year': cal_year,
-            'cal_month': cal_month,
-            'calendar_weeks': calendar_weeks,
+            **calendar_context,
             'dates_with_entries': dates_with_entries,
-            'prev_year': prev_y,
-            'prev_month': prev_m,
-            'next_year': next_y,
-            'next_month': next_m,
             'selected_date': selected_date,
             'shown': shown,
             'entries': entries,
@@ -619,6 +627,34 @@ def diary_delete(request, pk):
         }
     )
     return redirect(f'{reverse("accounts:diary_browse")}?{q}')
+
+
+@login_required
+def schedule_write(request):
+    return render(
+        request,
+        'accounts/schedule_calendar.html',
+        {
+            **_calendar_month_context(request),
+            'title': '予定を記入する',
+            'lead': 'カレンダーから予定を記入する日付を確認できます。入力フォームは後日追加予定です。',
+            'calendar_url_name': 'accounts:schedule_write',
+        },
+    )
+
+
+@login_required
+def schedule_browse(request):
+    return render(
+        request,
+        'accounts/schedule_calendar.html',
+        {
+            **_calendar_month_context(request),
+            'title': '予定を確認する',
+            'lead': 'カレンダーで予定を確認する日付を見られます。予定一覧は後日追加予定です。',
+            'calendar_url_name': 'accounts:schedule_browse',
+        },
+    )
 
 
 @login_required

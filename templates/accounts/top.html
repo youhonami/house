@@ -4,8 +4,12 @@
 {% block title %}収支概要 — 家計簿{% endblock %}
 {% block app_body %}
 <div class="top-page">
+  <h1 class="top-user">
+    {{ request.user.email|default:request.user.username }}のトップページ
+  </h1>
+
   <div class="top-page__main auth-card auth-card--home">
-    <h1>収支概要</h1>
+    <h2>収支概要</h2>
     <p class="top-monthly-summary__period">{{ this_month_label }}の合計</p>
     <dl class="top-monthly-summary">
       <div class="top-monthly-summary__row">
@@ -41,9 +45,6 @@
     </div>
     {{ chart_income|json_script:"top-chart-income" }}
     {{ chart_expense|json_script:"top-chart-expense" }}
-    <p class="top-user">
-      {{ request.user.email|default:request.user.username }}
-    </p>
   </div>
 
   <aside

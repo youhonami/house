@@ -55,6 +55,18 @@ SIDEBAR_NAV_ITEMS: list[dict] = [
     },
     {
         'kind': 'link',
+        'label': '予定を記入する',
+        'url_name': 'accounts:schedule_write',
+        'match': 'schedule_write',
+    },
+    {
+        'kind': 'link',
+        'label': '予定を確認する',
+        'url_name': 'accounts:schedule_browse',
+        'match': 'schedule_browse',
+    },
+    {
+        'kind': 'link',
         'label': 'ユーザー設定',
         'url_name': 'accounts:settings',
         'match': 'settings',

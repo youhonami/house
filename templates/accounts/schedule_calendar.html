@@ -1,0 +1,46 @@
+{% extends "accounts/base_app.html" %}
+{% block title %}{{ title }} — 家計簿{% endblock %}
+{% block app_body %}
+<div class="page-schedule">
+  <section class="income-panel income-panel--form">
+    <h1 class="income-heading">{{ title }}</h1>
+    <p class="schedule-calendar__lead">{{ lead }}</p>
+
+    <div class="diary-cal schedule-calendar">
+      <div class="diary-cal__nav">
+        <a
+          class="diary-cal__nav-btn"
+          href="{% url calendar_url_name %}?year={{ prev_year }}&month={{ prev_month }}"
+          aria-label="前の月へ"
+        >&lsaquo;</a>
+        <span class="diary-cal__caption">{{ cal_year }}年{{ cal_month }}月</span>
+        <a
+          class="diary-cal__nav-btn"
+          href="{% url calendar_url_name %}?year={{ next_year }}&month={{ next_month }}"
+          aria-label="次の月へ"
+        >&rsaquo;</a>
+      </div>
+
+      <div class="diary-cal__weekdays" aria-hidden="true">
+        <span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span><span>日</span>
+      </div>
+
+      <div class="diary-cal__grid" role="grid" aria-label="{{ cal_year }}年{{ cal_month }}月のカレンダー">
+        {% for week in calendar_weeks %}
+          {% for d in week %}
+            {% if d.month != cal_month %}
+            <div class="diary-cal__cell diary-cal__cell--pad" aria-hidden="true"></div>
+            {% else %}
+            <div class="diary-cal__cell" role="gridcell">
+              <span class="diary-cal__day-label{% if d == today %} diary-cal__day-label--today{% endif %}">
+                <span class="diary-cal__num">{{ d.day }}</span>
+              </span>
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
