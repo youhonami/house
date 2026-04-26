@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 
 from .forms import (
@@ -23,8 +23,9 @@ from .forms import (
     IncomeEntryForm,
     PasswordChangeSettingsForm,
     RegisterForm,
+    ScheduleEntryForm,
 )
-from .models import DiaryEntry, ExpenseBudget, ExpenseEntry, IncomeEntry
+from .models import DiaryEntry, ExpenseBudget, ExpenseEntry, IncomeEntry, ScheduleEntry
 
 
 def _home():
@@ -631,28 +632,97 @@ def diary_delete(request, pk):
 
 @login_required
 def schedule_write(request):
+    selected_date = None
+    if request.method == 'POST':
+        form = ScheduleEntryForm(request.POST)
+        date_str = request.POST.get('date')
+        if date_str:
+            try:
+                selected_date = date.fromisoformat(date_str)
+            except ValueError:
+                selected_date = None
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
+            messages.success(request, '予定を保存しました。')
+            q = urlencode(
+                {
+                    'year': obj.date.year,
+                    'month': obj.date.month,
+                    'date': obj.date.isoformat(),
+                }
+            )
+            return redirect(f'{reverse("accounts:schedule_write")}?{q}')
+    else:
+        date_str = request.GET.get('date')
+        if date_str:
+            try:
+                selected_date = date.fromisoformat(date_str)
+            except ValueError:
+                selected_date = None
+        form = ScheduleEntryForm(initial={'date': selected_date})
+
     return render(
         request,
         'accounts/schedule_calendar.html',
         {
             **_calendar_month_context(request),
             'title': '予定を記入する',
-            'lead': 'カレンダーから予定を記入する日付を確認できます。入力フォームは後日追加予定です。',
+            'lead': 'カレンダーの日付をクリックすると、時間と予定を入力できます。',
             'calendar_url_name': 'accounts:schedule_write',
+            'selected_date': selected_date,
+            'form': form,
+            'is_schedule_write': True,
         },
     )
 
 
 @login_required
 def schedule_browse(request):
+    calendar_context = _calendar_month_context(request)
+    cal_year = calendar_context['cal_year']
+    cal_month = calendar_context['cal_month']
+    selected_date = None
+    date_str = request.GET.get('date')
+    if date_str:
+        try:
+            selected_date = date.fromisoformat(date_str)
+        except ValueError:
+            selected_date = None
+
+    schedule_entries = []
+    if selected_date:
+        schedule_entries = list(
+            ScheduleEntry.objects.filter(user=request.user, date=selected_date).order_by(
+                'time',
+                'id',
+            )
+        )
+    schedule_date_counts = list(
+        ScheduleEntry.objects.filter(
+            user=request.user,
+            date__year=cal_year,
+            date__month=cal_month,
+        )
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+
     return render(
         request,
         'accounts/schedule_calendar.html',
         {
-            **_calendar_month_context(request),
+            **calendar_context,
             'title': '予定を確認する',
-            'lead': 'カレンダーで予定を確認する日付を見られます。予定一覧は後日追加予定です。',
+            'lead': 'カレンダーの日付をクリックすると、その日の予定を確認できます。',
             'calendar_url_name': 'accounts:schedule_browse',
+            'selected_date': selected_date,
+            'schedule_entries': schedule_entries,
+            'schedule_date_counts': schedule_date_counts,
+            'is_schedule_write': False,
+            'is_schedule_browse': True,
         },
     )
 

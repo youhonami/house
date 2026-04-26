@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .models import DiaryEntry, ExpenseBudget, ExpenseEntry, IncomeEntry
+from .models import DiaryEntry, ExpenseBudget, ExpenseEntry, IncomeEntry, ScheduleEntry
 
 _LOGIN_ERR = 'メールアドレスまたはパスワードが正しくありません。'
 _W = {'class': 'auth-input'}
@@ -268,6 +268,27 @@ class DiaryEntryForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class ScheduleEntryForm(forms.ModelForm):
+    class Meta:
+        model = ScheduleEntry
+        fields = ('date', 'time', 'content')
+        labels = {
+            'date': '日付',
+            'time': '時間',
+            'content': '予定',
+        }
+        widgets = {
+            'date': forms.HiddenInput(),
+            'time': forms.TimeInput(
+                attrs={**_INC_W, 'type': 'time', 'autocomplete': 'off'}
+            ),
+            'content': forms.TextInput(
+                attrs={**_INC_W, 'placeholder': '予定を入力してください'}
+            ),
+        }
+
 
 _BUDGET_W = {'class': 'auth-input'}
 

@@ -116,3 +116,24 @@ class DiaryEntry(models.Model):
 
     def __str__(self):
         return f'{self.date} {self.title}'
+
+
+class ScheduleEntry(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='schedule_entries',
+    )
+    date = models.DateField('日付')
+    time = models.TimeField('時間')
+    content = models.CharField('予定', max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date', 'time', 'id']
+        verbose_name = '予定'
+        verbose_name_plural = '予定'
+
+    def __str__(self):
+        return f'{self.date} {self.time} {self.content}'

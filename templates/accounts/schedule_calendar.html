@@ -6,6 +6,16 @@
     <h1 class="income-heading">{{ title }}</h1>
     <p class="schedule-calendar__lead">{{ lead }}</p>
 
+    {% if messages %}
+    <ul class="budget-messages" role="status">
+      {% for message in messages %}
+      <li class="budget-messages__item budget-messages__item--{{ message.level_tag }}">
+        {{ message }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
     <div class="diary-cal schedule-calendar">
       <div class="diary-cal__nav">
         <a
@@ -32,15 +42,108 @@
             <div class="diary-cal__cell diary-cal__cell--pad" aria-hidden="true"></div>
             {% else %}
             <div class="diary-cal__cell" role="gridcell">
+              {% if is_schedule_write or is_schedule_browse %}
+              <a
+                class="diary-cal__day-label schedule-calendar__day-link{% if d == today %} diary-cal__day-label--today{% endif %}{% if selected_date == d %} schedule-calendar__day-link--selected{% endif %}"
+                href="{% url calendar_url_name %}?year={{ cal_year }}&month={{ cal_month }}&date={{ d|date:'Y-m-d' }}"
+                aria-label="{{ d|date:'Y年n月j日' }}の予定{% if is_schedule_write %}を記入する{% else %}を確認する{% endif %}"
+              >
+                <span class="diary-cal__num">{{ d.day }}</span>
+                {% if is_schedule_browse %}
+                  {% for item in schedule_date_counts %}
+                    {% if item.date == d %}
+                    <span class="schedule-calendar__badge" aria-label="予定{{ item.count }}件">
+                      {{ item.count }}
+                    </span>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </a>
+              {% else %}
               <span class="diary-cal__day-label{% if d == today %} diary-cal__day-label--today{% endif %}">
                 <span class="diary-cal__num">{{ d.day }}</span>
               </span>
+              {% endif %}
             </div>
             {% endif %}
           {% endfor %}
         {% endfor %}
       </div>
     </div>
+
+    {% if is_schedule_write %}
+      {% if selected_date %}
+      <form method="post" class="schedule-form" novalidate>
+        {% csrf_token %}
+        {{ form.date }}
+        <h2 class="schedule-form__heading">
+          {{ selected_date|date:"Y年n月j日" }}の予定
+        </h2>
+
+        {% if form.non_field_errors %}
+        <ul class="auth-errors">
+          {% for err in form.non_field_errors %}
+          <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="income-form__field">
+          {{ form.time.label_tag }}{{ form.time }}
+          {% if form.time.errors %}
+          <ul class="field-errors">
+            {% for err in form.time.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <div class="income-form__field income-form__field--full">
+          {{ form.content.label_tag }}{{ form.content }}
+          {% if form.content.errors %}
+          <ul class="field-errors">
+            {% for err in form.content.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="auth-submit income-form__submit">
+          保存する
+        </button>
+      </form>
+      {% else %}
+      <p class="schedule-form__empty">予定を記入する日付をカレンダーから選択してください。</p>
+      {% endif %}
+    {% endif %}
+
+    {% if is_schedule_browse %}
+      {% if selected_date %}
+      <section class="schedule-list" aria-labelledby="schedule-list-heading">
+        <h2 id="schedule-list-heading" class="schedule-form__heading">
+          {{ selected_date|date:"Y年n月j日" }}の予定
+        </h2>
+        {% if schedule_entries %}
+        <ul class="schedule-list__items">
+          {% for entry in schedule_entries %}
+          <li class="schedule-list__item">
+            <time class="schedule-list__time" datetime="{{ entry.time|time:'H:i' }}">
+              {{ entry.time|time:"H:i" }}
+            </time>
+            <span class="schedule-list__content">{{ entry.content }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="schedule-form__empty">この日付の予定はまだありません。</p>
+        {% endif %}
+      </section>
+      {% else %}
+      <p class="schedule-form__empty">確認したい日付をカレンダーから選択してください。</p>
+      {% endif %}
+    {% endif %}
   </section>
 </div>
 {% endblock %}

@@ -826,6 +826,102 @@ body.app-shell-lock-scroll {
   color: #666;
 }
 
+.schedule-calendar__day-link {
+  text-decoration: none;
+}
+
+.schedule-calendar__day-link--selected {
+  background: linear-gradient(145deg, #ebe4f7 0%, #e4dcf3 100%);
+  border-color: #a896d8;
+  color: #2d1f4a;
+}
+
+.schedule-calendar__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+  padding: 0 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  background: #ea9ec8;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(232, 160, 200, 0.35);
+  box-sizing: border-box;
+}
+
+.schedule-form {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #ece8f4;
+}
+
+.schedule-form__heading {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3d2d5c;
+  letter-spacing: 0.02em;
+}
+
+.schedule-form__empty {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #666;
+  background: #faf8fc;
+  border: 1px dashed #d4cce8;
+  border-radius: 12px;
+}
+
+.schedule-list {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #ece8f4;
+}
+
+.schedule-list__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.schedule-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: #faf8fc;
+  border: 1px solid #e8e2f2;
+  border-radius: 10px;
+}
+
+.schedule-list__time {
+  flex: 0 0 auto;
+  min-width: 3.25rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #5c4d7a;
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-list__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #333;
+  word-break: break-word;
+}
+
 .diary-cal {
   margin: 0 0 0.25rem;
 }

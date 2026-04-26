@@ -15,6 +15,7 @@ Django が自動作成する `django_migrations`・`django_session`・`django_ad
 | `accounts_expenseentry` | `ExpenseEntry`（支出） | 支出の取引明細 |
 | `accounts_expensebudget` | `ExpenseBudget`（支出予算） | ユーザー×カテゴリ単位の月間予算 |
 | `accounts_diaryentry` | `DiaryEntry`（日記） | 日記エントリ |
+| `accounts_scheduleentry` | `ScheduleEntry`（予定） | 予定エントリ |
 
 ---
 
@@ -28,6 +29,7 @@ erDiagram
     auth_user ||--o{ accounts_expenseentry : "1:N"
     auth_user ||--o{ accounts_expensebudget : "1:N"
     auth_user ||--o{ accounts_diaryentry : "1:N"
+    auth_user ||--o{ accounts_scheduleentry : "1:N"
 
     auth_user {
         bigint id PK
@@ -77,6 +79,16 @@ erDiagram
         string title "最大200"
         text events "任意"
         text tomorrow_goals "任意"
+        datetime created_at
+        datetime updated_at
+    }
+
+    accounts_scheduleentry {
+        bigint id PK
+        bigint user_id FK "→ auth_user"
+        date date
+        time time
+        string content "最大200"
         datetime created_at
         datetime updated_at
     }
@@ -179,6 +191,22 @@ erDiagram
 **並び順**: `-date`, `-created_at`, `-id`
 
 **備考**: 同一ユーザー・同一 `date` に複数行が存在し得る（アプリ側で複数件を扱う）。
+
+---
+
+### `accounts_scheduleentry`（予定）
+
+| カラム | 型（概略） | NULL | 備考 |
+|--------|------------|------|------|
+| `id` | BIGINT PK | NO | |
+| `user_id` | BIGINT FK → `auth_user.id` | NO | `related_name=schedule_entries` |
+| `date` | DATE | NO | 予定の日付 |
+| `time` | TIME | NO | 予定の時間 |
+| `content` | VARCHAR(200) | NO | 予定内容 |
+| `created_at` | DATETIME | NO | |
+| `updated_at` | DATETIME | NO | 保存のたびに更新 |
+
+**並び順**: `date`, `time`, `id`
 
 ---
 
