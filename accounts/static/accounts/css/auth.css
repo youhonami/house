@@ -290,6 +290,49 @@
   word-break: break-word;
 }
 
+.top-today-schedules {
+  margin-top: 1.35rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #ece8f4;
+}
+
+.top-today-schedules__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.top-today-schedules__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: #faf8fc;
+  border: 1px solid #e8e2f2;
+  border-radius: 10px;
+}
+
+.top-today-schedules__time {
+  flex: 0 0 auto;
+  min-width: 3.25rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #5c4d7a;
+  font-variant-numeric: tabular-nums;
+}
+
+.top-today-schedules__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #333;
+  word-break: break-word;
+}
+
 .auth-card--home {
   text-align: center;
   color: #3d3d3d;

@@ -49,6 +49,9 @@ def top(request):
         e for e in yesterday_diary_entries if (e.tomorrow_goals or '').strip()
     ]
     yesterday_has_any_goal = bool(yesterday_goal_entries)
+    today_schedule_entries = list(
+        ScheduleEntry.objects.filter(user=request.user, date=today).order_by('time', 'id')
+    )
     return render(
         request,
         'accounts/top.html',
@@ -63,6 +66,8 @@ def top(request):
             'yesterday_diary_entries': yesterday_diary_entries,
             'yesterday_goal_entries': yesterday_goal_entries,
             'yesterday_has_any_goal': yesterday_has_any_goal,
+            'today_date': today,
+            'today_schedule_entries': today_schedule_entries,
         },
     )
 

@@ -75,6 +75,29 @@
       </div>
       {% endfor %}
     {% endif %}
+
+    <section class="top-today-schedules" aria-labelledby="top-today-schedules-heading">
+      <h2 id="top-today-schedules-heading" class="top-yesterday-goals__heading">
+        今日の予定
+      </h2>
+      <p class="top-yesterday-goals__period">
+        {{ today_date|date:"Y年n月j日" }}の予定
+      </p>
+      {% if today_schedule_entries %}
+      <ul class="top-today-schedules__items">
+        {% for entry in today_schedule_entries %}
+        <li class="top-today-schedules__item">
+          <time class="top-today-schedules__time" datetime="{{ entry.time|time:'H:i' }}">
+            {{ entry.time|time:"H:i" }}
+          </time>
+          <span class="top-today-schedules__content">{{ entry.content }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="top-yesterday-goals__empty">今日の予定はまだありません。</p>
+      {% endif %}
+    </section>
   </aside>
 </div>
 {% endblock %}
