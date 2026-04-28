@@ -27,6 +27,7 @@ urlpatterns = [
     path('diary/<int:pk>/delete/', views.diary_delete, name='diary_delete'),
     path('schedule/write/', views.schedule_write, name='schedule_write'),
     path('schedule/browse/', views.schedule_browse, name='schedule_browse'),
+    path('schedule/<int:pk>/delete/', views.schedule_delete, name='schedule_delete'),
     path('settings/', views.settings_page, name='settings'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),

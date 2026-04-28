@@ -965,6 +965,47 @@ body.app-shell-lock-scroll {
   word-break: break-word;
 }
 
+.schedule-list__delete-form {
+  flex: 0 0 auto;
+  margin: 0;
+  align-self: flex-start;
+}
+
+.schedule-list__delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0.45rem;
+  font-family: inherit;
+  line-height: 0;
+  color: #b42318;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.schedule-list__delete-btn:hover {
+  color: #8f1c13;
+  background: #fef3f2;
+  border-color: #fecdca;
+}
+
+.schedule-list__delete-btn:focus-visible {
+  outline: 2px solid #b42318;
+  outline-offset: 2px;
+}
+
+.schedule-list__delete-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
 .diary-cal {
   margin: 0 0 0.25rem;
 }

@@ -733,6 +733,23 @@ def schedule_browse(request):
 
 
 @login_required
+@require_http_methods(['POST'])
+def schedule_delete(request, pk):
+    entry = get_object_or_404(ScheduleEntry, pk=pk, user=request.user)
+    d = entry.date
+    entry.delete()
+    messages.success(request, '予定を削除しました。')
+    q = urlencode(
+        {
+            'year': d.year,
+            'month': d.month,
+            'date': d.isoformat(),
+        }
+    )
+    return redirect(f'{reverse("accounts:schedule_browse")}?{q}')
+
+
+@login_required
 def settings_page(request):
     if request.method == 'POST':
         form = PasswordChangeSettingsForm(request.user, request.POST)
