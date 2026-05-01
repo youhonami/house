@@ -1500,11 +1500,16 @@ body.app-shell-lock-scroll {
 
 .income-table-wrap {
   overflow-x: auto;
+  border: 1px solid #e8e2f2;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 18px rgba(61, 45, 92, 0.05);
 }
 
 .income-summary-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.9rem;
 }
 
@@ -1512,17 +1517,26 @@ body.app-shell-lock-scroll {
 .income-summary-table td {
   padding: 0.65rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e8e2f2;
 }
 
 .income-summary-table thead th {
-  color: #666;
-  font-weight: 600;
-  background: #faf9fd;
+  color: #4f4665;
+  font-weight: 700;
+  background: #f4f0fa;
+  border-bottom-color: #ded6ee;
+}
+
+.income-summary-table tbody tr:nth-child(even) {
+  background: #fcfbff;
+}
+
+.income-summary-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .income-summary-table tbody tr:hover {
-  background: #f9f7fc;
+  background: #f7f3fc;
 }
 
 .income-summary-table tbody tr:has(.income-summary-table__link-cell):hover {
@@ -1542,7 +1556,6 @@ body.app-shell-lock-scroll {
   padding: 0.65rem 0.75rem;
   text-decoration: none;
   color: #3d3d3d;
-  border-radius: 8px;
   outline-offset: 2px;
 }
 
@@ -1850,27 +1863,34 @@ select.auth-input:focus {
   overflow-x: auto;
   margin: 0 -0.25rem;
   padding: 0 0.25rem;
+  border: 1px solid #e8e2f2;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 18px rgba(61, 45, 92, 0.05);
 }
 
 .monthly-detail-table {
   width: 100%;
-  min-width: 280px;
-  border-collapse: collapse;
+  min-width: 420px;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.85rem;
 }
 
 .monthly-detail-table th,
 .monthly-detail-table td {
-  padding: 0.55rem 0.5rem;
+  padding: 0.65rem 0.6rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e8e2f2;
   vertical-align: top;
+  line-height: 1.5;
 }
 
 .monthly-detail-table thead th {
-  color: #666;
-  font-weight: 600;
-  background: #faf9fd;
+  color: #4f4665;
+  font-weight: 700;
+  background: #f4f0fa;
+  border-bottom-color: #ded6ee;
   white-space: nowrap;
 }
 
@@ -1878,8 +1898,16 @@ select.auth-input:focus {
   text-align: right;
 }
 
+.monthly-detail-table tbody tr:nth-child(even) {
+  background: #fcfbff;
+}
+
 .monthly-detail-table tbody tr:hover {
-  background: #f9f7fc;
+  background: #f7f3fc;
+}
+
+.monthly-detail-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .monthly-detail-table__num {
