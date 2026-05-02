@@ -276,17 +276,23 @@ def _monthly_expense_vs_budget_rows(user, year: int, month: int):
     return rows
 
 
-@login_required
-def income(request):
+def _entry_form_result(request, form_class):
     if request.method == 'POST':
-        form = IncomeEntryForm(request.POST)
+        form = form_class(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.user = request.user
             obj.save()
-            return redirect('accounts:income')
-    else:
-        form = IncomeEntryForm(initial={'date': timezone.localdate()})
+            return form, True
+        return form, False
+    return form_class(initial={'date': timezone.localdate()}), False
+
+
+@login_required
+def income(request):
+    form, saved = _entry_form_result(request, IncomeEntryForm)
+    if saved:
+        return redirect('accounts:income')
     return render(
         request,
         'accounts/income.html',
@@ -299,15 +305,9 @@ def income(request):
 
 @login_required
 def expense(request):
-    if request.method == 'POST':
-        form = ExpenseEntryForm(request.POST)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.user = request.user
-            obj.save()
-            return redirect('accounts:expense')
-    else:
-        form = ExpenseEntryForm(initial={'date': timezone.localdate()})
+    form, saved = _entry_form_result(request, ExpenseEntryForm)
+    if saved:
+        return redirect('accounts:expense')
     return render(
         request,
         'accounts/expense.html',
@@ -402,26 +402,29 @@ def _form_errors_dict(form):
     return {field: list(msgs) for field, msgs in form.errors.items()}
 
 
-@login_required
-@require_http_methods(['GET', 'POST', 'DELETE'])
-def monthly_income_entry(request, pk):
-    entry = get_object_or_404(IncomeEntry, pk=pk, user=request.user)
+def _income_entry_payload(entry):
+    return {
+        'id': entry.pk,
+        'date': entry.date.isoformat(),
+        'amount': str(int(entry.amount)),
+        'note': entry.note or '',
+    }
+
+
+def _expense_entry_payload(entry):
+    data = _income_entry_payload(entry)
+    data['category'] = entry.category
+    return data
+
+
+def _monthly_entry_response(request, pk, model_class, form_class, payload_builder):
+    entry = get_object_or_404(model_class, pk=pk, user=request.user)
     if request.method == 'GET':
-        return JsonResponse(
-            {
-                'ok': True,
-                'data': {
-                    'id': entry.pk,
-                    'date': entry.date.isoformat(),
-                    'amount': str(int(entry.amount)),
-                    'note': entry.note or '',
-                },
-            }
-        )
+        return JsonResponse({'ok': True, 'data': payload_builder(entry)})
     if request.method == 'DELETE':
         entry.delete()
         return JsonResponse({'ok': True})
-    form = IncomeEntryForm(request.POST, instance=entry)
+    form = form_class(request.POST, instance=entry)
     if form.is_valid():
         form.save()
         return JsonResponse({'ok': True})
@@ -433,31 +436,25 @@ def monthly_income_entry(request, pk):
 
 @login_required
 @require_http_methods(['GET', 'POST', 'DELETE'])
+def monthly_income_entry(request, pk):
+    return _monthly_entry_response(
+        request,
+        pk,
+        IncomeEntry,
+        IncomeEntryForm,
+        _income_entry_payload,
+    )
+
+
+@login_required
+@require_http_methods(['GET', 'POST', 'DELETE'])
 def monthly_expense_entry(request, pk):
-    entry = get_object_or_404(ExpenseEntry, pk=pk, user=request.user)
-    if request.method == 'GET':
-        return JsonResponse(
-            {
-                'ok': True,
-                'data': {
-                    'id': entry.pk,
-                    'date': entry.date.isoformat(),
-                    'amount': str(int(entry.amount)),
-                    'category': entry.category,
-                    'note': entry.note or '',
-                },
-            }
-        )
-    if request.method == 'DELETE':
-        entry.delete()
-        return JsonResponse({'ok': True})
-    form = ExpenseEntryForm(request.POST, instance=entry)
-    if form.is_valid():
-        form.save()
-        return JsonResponse({'ok': True})
-    return JsonResponse(
-        {'ok': False, 'errors': _form_errors_dict(form)},
-        status=400,
+    return _monthly_entry_response(
+        request,
+        pk,
+        ExpenseEntry,
+        ExpenseEntryForm,
+        _expense_entry_payload,
     )
 
 
